@@ -183,37 +183,40 @@ CLAUDE.md (AI 협업 지시 — 빌드/테스트 명령어, 워크플로우 지�
 
 ### 0단계: GitHub 저장소 연결
 
-> 개발 착수할 프로젝트 폴더를 생성하신 후 터미널에서 생성한 프로젝트 루트 경로로 이동 하여 이 템플릿을 Clone 합니다. (최초 1회)
-> 참고로 템플릿을 clone 하는 방법은 터미널 에서 다음을 실행합니다. `git clone https://github.com/mailtome7072/CLAUDESTARTER.git`
+> 개발 착수할 프로젝트 폴더를 생성하신 후 생성한 프로젝트 루트 경로로 이동 하여 터미널에서 아래 프롬프트로 Clone 합니다. (최초 1회)
+> `git clone https://github.com/mailtome7072/CLAUDESTARTER.git .`
+> 템플릿 깃허브 주소 뒤 '.' 은  생성한 프로젝트 루트 경로에 파일이나 폴더가 없어야 오류가 안납니다. (지금 폴더로 클론 됨을 뜻함)
 > GitHub 저장소 연결 : 아래 절차는 클론한 템플릿을 **새 프로젝트 GitHub 저장소에 연결하고 초기 커밋을 푸시**하는 단계입니다.
 
 1. 수동으로 GitHub에서 새 저장소를 생성합니다 (빈 저장소, README 초기화 없이).
 2. 터미널에서 프로젝트 루트로 이동합니다.
 
 ```bash
-# 기존 origin 제거 (템플릿 저장소 URL 연결 해제)
-git remote remove origin
+# 기존 Git 정보 완전 삭제 (clone 하기위해 연결한 템플릿 저장소 URL 연결 해제)
+rm -rf .git
 
-# 새 프로젝트 저장소로 연결 (실제 org와 repo명으로 교체)
-git remote add origin https://github.com/YOUR_ORG/YOUR_REPO.git
+# 새 Git 저장소 초기화
+git init
 
-# 전체 파일 스테이징 및 초기 커밋
+# 파일 추적 시작
 git add .
-git commit -m "초기 프로젝트 설정 (템플릿 기반)"
 
-# main 브랜치로 푸시
-git branch -M main
+# 첫 커밋 생성
+git commit -m "Initial commit from template"
+
+# 방금 위(1.)에서 만든 새 프로젝트 저장소로 Git 연결 (실제 org와 repo명으로 교체)
+git remote add origin https://github.com/당신의깃허브아이디/새저장소이름.git
+
+# 내용 올리기
 git push -u origin main
 ```
-
-> **참고**: git clone이 아닌 로컬 폴더에서 새로 시작하는 경우에는 `git remote add` 전에 `git init`을 먼저 실행하세요.
 
 ---
 
 ### 1단계: 프로젝트 변수 설정 (/setup-project)
 
 > GitHub 저장소 연결이 완료되면, 프로젝트 식별 정보를 한 번에 설정합니다.
-> `ARCHITECTURE.md`의 변수를 채운 뒤 `/setup-project`를 실행하면 `README.md`, `CLAUDE.md`, `deploy.yml`, `PRD.md`의 플레이스홀더가 일괄 치환됩니다.
+> `ARCHITECTURE.md`를 열어 프로젝트 변수를 채운 뒤 `/setup-project`를 실행하면 `README.md`, `CLAUDE.md`, `deploy.yml`, `PRD.md`의 플레이스홀더가 일괄 치환됩니다.
 
 - ⬜ `ARCHITECTURE.md` — **프로젝트 변수** 테이블의 5개 값 입력
   - `project_name`: 프로젝트 이름
@@ -231,6 +234,8 @@ git push -u origin main
 각 단계의 ⬜ 항목은 착수 전 반드시 처리해야 할 작업입니다.
 
 > 이 단계를 완료해야 `prd-to-roadmap` 에이전트로 로드맵을 생성할 수 있습니다.
+> PRD.md 문서를 열고 아래 체크리스트의 내용을 개발하실 프로젝트 내용으로 작성해 주세요.
+> 올바를 PRD가 작성되어야 올바른 ROADMAP을 만드실 수 있습니다. 
 
 - ⬜ `PRD.md` — 상단 메타데이터 블록의 프로젝트명·버전·날짜·담당자 입력
 - ⬜ `PRD.md` — 문제 정의, 목표 및 성공 지표 작성
