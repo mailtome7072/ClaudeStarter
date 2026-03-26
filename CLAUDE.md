@@ -37,6 +37,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ```bash
 ./SETUP.sh           # Node.js 확인, pnpm 설치, Python venv 생성, .env 복사
+git checkout -b develop  # 최초 1회: develop 브랜치 생성 (스프린트 기반 브랜치)
 ```
 
 ### 프론트엔드 (pnpm)
@@ -83,7 +84,6 @@ docker compose -f docker-compose.prod.yml up   # 프로덕션 설정으로 실�
 |--------|------|------|
 | `/setup-project` | 프로젝트 커스텀 | `ARCHITECTURE.md` 변수 → `README.md`, `CLAUDE.md`, `deploy.yml`, `PRD.md` 플레이스홀더 일괄 치환 |
 | `/restart` | 프로젝트 커스텀 | Docker Compose 서비스 재시작 |
-| `/init` | Claude Code 내장 | 코드베이스 분석 후 CLAUDE.md 생성/개선 제안 |
 
 ### 내장 스킬 (`.claude/skills/`)
 
@@ -128,6 +128,12 @@ docker compose -f docker-compose.prod.yml up   # 프로덕션 설정으로 실�
 - `develop` → `main` merge는 QA 통과 후 deploy-prod agent를 사용한다.
 - merge 시 GitHub Actions가 GHCR 이미지 빌드 → 서버 SSH 배포를 자동 수행한다.
 - 📎 배포 절차: `docs/dev-process.md` 섹션 6.2 / 롤백: 섹션 6.4 / Notion 업데이트: 섹션 8.5
+
+**필수 GitHub Secrets** (Settings > Secrets and variables > Actions):
+- `CR_PAT`: GHCR push용 PAT (패키지 write 권한 포함)
+- `LIGHTSAIL_HOST`: 프로덕션 서버 IP 또는 도메인
+- `LIGHTSAIL_USER`: SSH 접속 사용자명
+- `LIGHTSAIL_SSH_KEY`: SSH 개인키 (PEM 형식)
 
 ### Develop 브랜치
 - `sprint{n}` → `develop` PR은 sprint-close agent가 생성한다.

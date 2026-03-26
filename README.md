@@ -183,9 +183,8 @@ CLAUDE.md (AI 협업 지시 — 빌드/테스트 명령어, 워크플로우 지�
 
 ### 0단계: GitHub 저장소 연결
 
-> 이 템플릿을 **git clone으로 가져온 경우**, `git`은 이미 초기화된 상태입니다.
-> 참고로 템플릿을 clone 하는 방법은 `git clone https://github.com/your-org/CLAUDESTARTER.git`
-
+> 개발 착수할 프로젝트 폴더를 생성하신 후 터미널에서 생성한 프로젝트 루트 경로로 이동 하여 이 템플릿을 Clone 합니다. (최초 1회)
+> 참고로 템플릿을 clone 하는 방법은 터미널 에서 다음을 실행합니다. `git clone https://github.com/mailtome7072/CLAUDESTARTER.git`
 > GitHub 저장소 연결 : 아래 절차는 클론한 템플릿을 **새 프로젝트 GitHub 저장소에 연결하고 초기 커밋을 푸시**하는 단계입니다.
 
 1. 수동으로 GitHub에서 새 저장소를 생성합니다 (빈 저장소, README 초기화 없이).
@@ -295,11 +294,11 @@ docker compose up --build
 
 ---
 
-## 착수 완료 후: 첫 스프린트 시작
+## 프로젝트 착수 전 수행할 항목 및 체크리스트 완료 후 : 첫 스프린트 시작
 
-모든 체크리스트 완료 후 아래 순서로 개발을 시작합니다:
+아래 순서로 개발을 시작합니다:
 
-> **모든 체크리스트 완료 후 Claude Code에서 `/init`을 실행하세요.**
+> **Claude Code에서 `/init`을 실행하세요.**
 > 1단계의 `/setup-project`와는 별개로, 첫 스프린트 시작 직전에 프로젝트 구조와 빌드 명령어를 분석하여 CLAUDE.md를 최신 상태로 갱신합니다.
 
 ```
@@ -333,6 +332,3 @@ docker compose up --build
 - `PRD.md` — 제품 요구사항 정의
 - `DEPLOY.md` — 배포 후 수동 작업 목록
 - `CHANGELOG.md` — 버전별 변경 이력
-# ClaudeStarter
-# ClaudeStarter
-# ClaudeStarter
