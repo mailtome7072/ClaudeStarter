@@ -11,8 +11,8 @@
 |------|------|------|----------|
 | 백엔드 단위/통합 테스트 | `pytest` | `backend/tests/` | CI (PR 체크) |
 | 프론트엔드 테스트 | `pnpm test` | (프로젝트별 설정) | CI (PR 체크) |
-| API 검증 | `curl` / `httpx` | — | sprint-close / hotfix-close |
-| UI E2E 테스트 | Playwright | — | sprint-close / deploy-prod |
+| API 검증 | `curl` / `httpx` | — | sprint-review / hotfix-close |
+| UI E2E 테스트 | Playwright | — | sprint-review / hotfix-close / deploy-prod |
 
 ## 통과 기준
 

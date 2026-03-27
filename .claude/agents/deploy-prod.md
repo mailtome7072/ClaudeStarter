@@ -1,7 +1,7 @@
 ---
 name: deploy-prod
 description: "Use this agent when ready to deploy to production (AWS Lightsail) after QA on develop branch. Handles develop → main PR creation, pre-deployment checklist, and post-deployment verification guide.\n\n<example>\nContext: QA has passed on develop branch and user wants to release to production.\nuser: \"develop 검증 완료됐어. 프로덕션 배포 해줘.\"\nassistant: \"deploy-prod 에이전트로 프로덕션 배포 절차를 진행할게요.\"\n<commentary>\ndevelop → main 배포 요청이므로 deploy-prod 에이전트를 사용합니다.\n</commentary>\n</example>\n\n<example>\nContext: User wants to release multiple sprints to production.\nuser: \"sprint 17, 18 배포 준비됐어. 프로덕션 올려줘.\"\nassistant: \"deploy-prod 에이전트로 배포 준비를 진행하겠습니다.\"\n<commentary>\n프로덕션 배포 요청이므로 deploy-prod 에이전트를 사용합니다.\n</commentary>\n</example>"
-model: inherit
+model: claude-sonnet-4-6
 color: red
 ---
 
@@ -13,8 +13,9 @@ color: red
 
 - `docs/ci-policy.md` 존재 여부 (없으면 CLAUDE.md CI/CD 정책 섹션 참조로 대체)
 - `docs/dev-process.md` 존재 여부 (없으면 사용자에게 작성 요청)
-- GitHub Secrets 설정 완료 여부 (`LIGHTSAIL_SSH_KEY`, `LIGHTSAIL_HOST`, `GHCR_TOKEN`)
+- GitHub Secrets 설정 완료 여부 (`LIGHTSAIL_HOST`, `LIGHTSAIL_USER`, `LIGHTSAIL_SSH_KEY`) — GHCR 인증은 `GITHUB_TOKEN` 자동 제공으로 별도 PAT 불필요
 - `develop` 브랜치가 원격에 존재하고 CI가 통과된 상태
+- `DEPLOY.md`의 `⬜ sprint-review 에이전트 실행` 항목이 `✅`로 처리되었는지 확인 (sprint-review 미완료 시 사용자에게 알림)
 
 참조 문서:
 - CI/CD 정책: `docs/ci-policy.md` (없으면 CLAUDE.md CI/CD 정책 섹션)

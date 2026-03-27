@@ -33,6 +33,7 @@
 | `CLAUDE.md` | 원격 저장소 URL(`repo_url`) |
 | `.github/workflows/deploy.yml` | GHCR 이미지명 3곳(`ghcr_prefix`) |
 | `PRD.md` | 작성일 메타데이터(`decision_date`) |
+| `docs/ci-policy.md` | GHCR 이미지명(`ghcr_prefix`) |
 
 ---
 
@@ -44,20 +45,23 @@ project-root/
 │   ├── backend/         # FastAPI (Python) — app/backend/requirements.txt, app/backend/tests/
 │   └── frontend/        # React (pnpm) — package.json은 루트 또는 app/frontend/에 위치
 ├── .claude/
-│   ├── agents/          # Claude 에이전트 정의 (sprint-planner, sprint-close, hotfix-close, deploy-prod, prd-to-roadmap)
+│   ├── agents/          # Claude 에이전트 정의 (7개)
 │   │   └── agent-memory/    # 세션 간 공유 에이전트 메모리 (버전 관리됨)
-│   ├── commands/        # 슬래시 커맨드 (/restart, /setup-project)
-│   └── skills/          # Claude 스킬 정의 (karpathy-guidelines, writing-plans, code-review, test-checklist)
+│   ├── commands/        # 슬래시 커맨드 (/setup-project, /sprint-dev, /restart)
+│   ├── rules/           # 조건부 자동 로드 규칙 (sprint-workflow, backend, frontend, notion)
+│   └── skills/          # Claude 스킬 정의 (명시적 호출용 — karpathy-guidelines, writing-plans 등)
 ├── strategy/            # 전략 지침 (브랜치, 테스트, 배포, 코드리뷰 등)
-├── docs/                # 산출물 저장 (sprint/, deploy-history/, test-reports/ 등)
+├── docs/                # 산출물 저장 (sprint/, phase/, deploy-history/, test-reports/ 등)
 └── .github/workflows/   # ci.yml (PR 검증), deploy.yml (main → 프로덕션 배포)
 ```
 
 **핵심 흐름**: `PRD.md` → `ROADMAP.md` → `sprint{n}` 브랜치 → `develop` PR → `main` 배포
 
-**에이전트 역할**:
-- `prd-to-roadmap` — PRD 분석 → ROADMAP.md 자동 생성
-- `sprint-planner` — ROADMAP 기반 스프린트 계획 수립
-- `sprint-close` — 스프린트 마무리 (PR 생성, 검증, 문서화)
-- `deploy-prod` — develop → main 프로덕션 배포
-- `hotfix-close` — 긴급 패치 마무리 (main 직접 배포)
+**에이전트 역할** (Opus = 계획/설계, Sonnet = 실행/검증):
+- `prd-to-roadmap` (Opus) — PRD 분석 → ROADMAP.md 자동 생성
+- `phase-planner` (Opus) — 3스프린트+ 대규모 기능 Phase 설계 (선택적)
+- `sprint-planner` (Opus) — ROADMAP 기반 스프린트 계획 수립
+- `sprint-close` (Sonnet) — 스프린트 마무리: 문서화 + PR 생성
+- `sprint-review` (Sonnet) — 스프린트 코드 리뷰 + 자동 검증 + 회고
+- `deploy-prod` (Sonnet) — develop → main 프로덕션 배포
+- `hotfix-close` (Sonnet) — 긴급 패치 마무리 (main 직접 배포)

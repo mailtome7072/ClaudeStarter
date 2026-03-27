@@ -1,7 +1,7 @@
 ---
 name: prd-to-roadmap
 description: prd문서를 분석하여 소규모 개발팀용 ROADMAP.md파일을 생성합니다.
-model: opus
+model: claude-opus-4-6
 color: blue
 memory: project
 ---
@@ -139,6 +139,10 @@ ROADMAP.md 작성 완료 후 다음을 확인합니다:
 ROADMAP.md 생성 완료 후 내용을 검토하고, 아래 프롬프트를 입력하면 첫 스프린트 계획이 시작됩니다:
 
 > "ROADMAP 검토했어. sprint 1 계획 세워줘."
+
+**대규모 기능(3스프린트 이상)**이 포함된 경우 sprint-planner 이전에 phase-planner 에이전트를 먼저 실행하세요:
+
+> "[기능명] Phase 설계해줘." → `phase-planner` 에이전트 → Phase 문서 완성 후 sprint-planner
 
 ## 주의사항
 

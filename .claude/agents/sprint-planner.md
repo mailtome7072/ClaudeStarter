@@ -1,7 +1,7 @@
 ---
 name: sprint-planner
 description: "Use this agent when the user wants to plan a new sprint. This agent should be used when a user describes a feature, milestone, or set of tasks they want to implement and needs a structured sprint development plan created.\n\n<example>\nContext: The user wants to plan a sprint for implementing a new feature.\nuser: \"다음 스프린트에서 사용자 알림 기능을 구현하고 싶어.\"\nassistant: \"sprint-planner 에이전트를 사용해서 스프린트 계획을 수립할게요.\"\n<commentary>\n사용자가 구현하고 싶은 기능을 설명했으므로, sprint-planner 에이전트를 실행하여 ROADMAP.md를 읽고 writing-plans 스킬을 참조한 뒤 스프린트 계획을 수립하고 문서화합니다.\n</commentary>\n</example>\n\n<example>\nContext: The user wants to plan a sprint for a backend API integration.\nuser: \"이번 스프린트는 외부 API 연동 작업을 하고 싶어. 계획 세워줘.\"\nassistant: \"네, sprint-planner 에이전트를 통해 스프린트 계획을 수립하겠습니다.\"\n<commentary>\n사용자가 스프린트 계획 수립을 요청했으므로 sprint-planner 에이전트를 사용하여 ROADMAP.md 검토 후 개발 계획을 작성합니다.\n</commentary>\n</example>"
-model: inherit
+model: claude-opus-4-6
 color: red
 memory: project
 ---
@@ -24,7 +24,7 @@ memory: project
 - 프로젝트의 기술 스택, 아키텍처, 핵심 목표를 이해합니다.
 - 에이전트 메모리에 ROADMAP의 주요 내용을 기록합니다.
 - 직전 스프린트 회고 문서(`docs/sprint-retrospectives/sprint{n-1}.md`)를 읽고 **액션 아이템**을 이번 스프린트 계획에 반영합니다. 반영된 액션 아이템은 계획 문서에 별도 섹션(`## 이전 회고 반영`)으로 명시합니다.
-  - 회고 문서가 없으면: 사용자에게 "sprint{n-1} 회고 문서가 없습니다. sprint-close에서 회고 작성이 완료되었는지 확인해 주세요."라고 경고하고, 확인 후 계속 진행합니다. (첫 스프린트는 해당 없음)
+  - 회고 문서가 없으면: 사용자에게 "sprint{n-1} 회고 문서가 없습니다. sprint-review에서 회고 작성이 완료되었는지 확인해 주세요."라고 경고하고, 확인 후 계속 진행합니다. (첫 스프린트는 해당 없음)
 - `docs/risk-register/`의 최신 파일을 읽고 미해결 리스크를 파악합니다. 이번 스프린트와 관련된 항목은 작업 목록 또는 완료 기준에 리스크 회피 작업으로 반영합니다.
 
 ### 2단계: writing-plans 스킬 참조
@@ -59,7 +59,7 @@ memory: project
 - CLAUDE.md의 문서 구조 규칙에 따라 저장합니다.
 - `/docs/sprint/` 디렉토리가 없으면 생성합니다.
 - 스프린트 번호는 ROADMAP.md에서 파악한 다음 번호를 사용합니다.
-- `ROADMAP.md`에서 해당 스프린트 상태를 `⬜ 예정` → `🔄 진행 중`으로 업데이트합니다.
+- `ROADMAP.md`에서 해당 스프린트 상태를 `📋 예정` → `🔄 진행 중`으로 업데이트합니다.
 
 ## 문서 작성 규칙
 
@@ -81,7 +81,7 @@ memory: project
 
 스프린트 계획 문서 저장 완료 후 내용을 검토하고, 아래 프롬프트를 입력하면 구현이 시작됩니다:
 
-> "sprint{n} 계획 확인했어. 브랜치 만들고 구현 시작해줘."
+> `/sprint-dev {n}` 커맨드로 구현 단계에 진입하세요.
 
 ## 에러 처리
 

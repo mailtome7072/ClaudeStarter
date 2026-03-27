@@ -70,7 +70,8 @@
   - docs/ci-policy.md
 
 ⚠️  다음 항목은 수동 설정이 필요합니다:
-  - GitHub Secrets: LIGHTSAIL_SSH_KEY, LIGHTSAIL_HOST, LIGHTSAIL_USER, GHCR_TOKEN
+  - GitHub Secrets: LIGHTSAIL_HOST, LIGHTSAIL_USER, LIGHTSAIL_SSH_KEY (GHCR 인증은 GITHUB_TOKEN 자동 제공)
+    앱 시크릿(POSTGRES_PASSWORD, JWT_SECRET 등) 전체 목록: docs/ci-policy.md 참조
   - .env 파일: .env.example 복사 후 실제 값 입력
   - docs/dev-process.md 섹션 6.3: SSH 접속 정보 직접 입력
     (SSH_KEY_PATH, USER, SERVER_IP, APP_PATH — deploy-prod 에이전트 실서버 검증 시 참조)

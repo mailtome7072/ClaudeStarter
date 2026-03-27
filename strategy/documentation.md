@@ -11,10 +11,12 @@
 CLAUDE.md              ← AI 협업 최상위 지침
 docs/dev-process.md    ← 프로세스 상세 (스프린트, 검증, 배포, 코드리뷰)
 docs/ci-policy.md      ← CI/CD 인프라 정책
+docs/prompt-guide.md   ← 작업 경로 선택 가이드
 DEPLOY.md              ← 현재 미완료 수동 작업 목록
 docs/deploy-history/   ← 완료된 배포 기록 아카이브
+docs/phase/            ← Phase 설계 문서 (phase-planner 산출물)
 docs/sprint/           ← 스프린트 계획/완료 문서
-docs/sprint-retrospectives/ ← 스프린트 회고
+docs/sprint-retrospectives/ ← 스프린트 회고 (sprint-review 산출물)
 docs/test-reports/     ← 테스트 실행 결과
 docs/risk-register/    ← 리스크 이력
 ```

@@ -1,7 +1,7 @@
 ---
 name: hotfix-close
 description: "Use this agent when a hotfix implementation is complete and needs to be wrapped up. Handles all hotfix closing tasks: creating PR to main, running lightweight code review, executing targeted verification, recording in DEPLOY.md, and guiding develop reverse-merge.\n\n<example>\nContext: The user has finished implementing a hotfix for a production bug.\nuser: \"hotfix 구현 끝났어. 마무리해줘.\"\nassistant: \"hotfix-close 에이전트를 사용해서 핫픽스 마무리 작업을 진행할게요.\"\n<commentary>\n핫픽스 구현이 완료되었으므로 hotfix-close 에이전트를 실행하여 PR 생성, 경량 코드 리뷰, 타겟 검증, DEPLOY.md 기록을 수행합니다.\n</commentary>\n</example>\n\n<example>\nContext: Hotfix is done and user wants to close it out.\nuser: \"핫픽스 마무리 해줘\"\nassistant: \"hotfix-close 에이전트로 마무리 작업을 처리하겠습니다.\"\n<commentary>\n핫픽스 마무리 요청이므로 hotfix-close 에이전트를 사용합니다.\n</commentary>\n</example>"
-model: inherit
+model: claude-sonnet-4-6
 color: red
 ---
 
@@ -55,7 +55,7 @@ color: red
 - `docker compose exec backend pytest -v`
 - 변경된 API 엔드포인트만 curl로 타겟 검증
 - 변경된 페이지/컴포넌트만 Playwright로 타겟 검증
-  - 검증 실패 시 스크린샷과 에러 메시지를 `DEPLOY.md`에 기록
+  - 검증 실패 시 스크린샷을 `docs/hotfix/{브랜치명}/` 폴더에 저장하고 에러 메시지를 `DEPLOY.md`에 기록
 
 **수동 필요 항목**: **test-checklist skill** 수동 컬럼 참조
 
@@ -107,6 +107,17 @@ PR: {PR URL}
     git push origin develop
     # 또는 GitHub에서 main → develop PR 생성
     ```
+  - **충돌 발생 시** (sprint 브랜치에서 동일 파일을 수정 중인 경우):
+    ```bash
+    git checkout develop
+    git pull origin main
+    # 충돌 파일 확인 후 해결
+    git status
+    git add <충돌 파일>
+    git commit -m "chore: hotfix/{브랜치명} develop 역머지 충돌 해결"
+    git push origin develop
+    ```
+    또는 GitHub에서 `main → develop` PR을 생성하여 PR 단위로 충돌을 해결할 수 있습니다.
 
 - 배포 후 실서버 검증이 필요하면 deploy-prod agent 사용을 안내합니다.
 

@@ -7,7 +7,7 @@
 
 ## 회고 주기
 
-- **스프린트 회고**: 매 스프린트 마무리 시 (sprint-close agent가 자동 생성)
+- **스프린트 회고**: 매 스프린트 마무리 시 (sprint-review agent가 자동 생성)
 - **장기 회고**: 필요 시 `docs/retrospectives/`에 별도 기록
 
 ## 산출물 위치
@@ -32,4 +32,4 @@
 ## 참조
 
 - 스프린트 회고 프로세스: [`docs/dev-process.md`](../docs/dev-process.md) 섹션 3.4
-- sprint-close agent: [`.claude/agents/sprint-close.md`](../.claude/agents/sprint-close.md)
+- sprint-review agent: [`.claude/agents/sprint-review.md`](../.claude/agents/sprint-review.md)

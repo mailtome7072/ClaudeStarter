@@ -33,19 +33,27 @@ project-root/                    # 프로젝트 루트(Root) 폴더
 ├── DEPLOY.md                    # 배포 후 수동 작업 목록
 ├── CHANGELOG.md                 # 버전별 변경 이력 관리
 ├── .claude/
-
 │   ├── agents/                  # Claude 에이전트 정의
-│   │   ├── sprint-planner.md    # 스프린트 계획 수립 에이전트
-│   │   ├── sprint-close.md      # 스프린트 마무리 에이전트
-│   │   ├── hotfix-close.md      # 핫픽스 마무리 에이전트
-│   │   ├── deploy-prod.md       # 프로덕션 배포 에이전트
-│   │   ├── prd-to-roadmap.md    # PRD → ROADMAP 변환 에이전트
+│   │   ├── prd-to-roadmap.md    # PRD → ROADMAP 변환 에이전트 (Opus)
+│   │   ├── phase-planner.md     # 대규모 기능 Phase 설계 에이전트 (Opus)
+│   │   ├── sprint-planner.md    # 스프린트 계획 수립 에이전트 (Opus)
+│   │   ├── sprint-close.md      # 스프린트 마무리 에이전트 (Sonnet)
+│   │   ├── sprint-review.md     # 코드 리뷰·검증·회고 에이전트 (Sonnet)
+│   │   ├── deploy-prod.md       # 프로덕션 배포 에이전트 (Sonnet)
+│   │   ├── hotfix-close.md      # 핫픽스 마무리 에이전트 (Sonnet)
 │   │   └── agent-memory/        # 에이전트 영구 메모리 (버전 관리됨, 팀 공유)
 │   │       ├── sprint-planner/
-│   │       └── prd-to-roadmap/
+│   │       ├── prd-to-roadmap/
+│   │       └── phase-planner/
 │   ├── commands/
+│   │   ├── sprint-dev.md        # /sprint-dev 슬래시 커맨드 (구현 진입)
 │   │   ├── restart.md           # /restart 슬래시 커맨드
 │   │   └── setup-project.md     # /setup-project 슬래시 커맨드
+│   ├── rules/                   # 조건부 자동 로드 규칙
+│   │   ├── sprint-workflow.md   # 모든 대화에 자동 적용
+│   │   ├── backend.md           # app/backend/**/*.py 접근 시
+│   │   ├── frontend.md          # app/frontend/**/*.ts,tsx 접근 시
+│   │   └── notion.md            # "Notion/노션" 언급 시
 │   ├── skills/                  # Claude 스킬 정의
 │   │   ├── karpathy-guidelines.md  # 개발 원칙 지침
 │   │   ├── writing-plans.md        # 계획 작성 지침
@@ -72,10 +80,12 @@ project-root/                    # 프로젝트 루트(Root) 폴더
 
 ├── docs/                        # 프로젝트 실행 기록 및 산출물 폴더
 │   ├── ci-policy.md             # CI/CD 정책 문서 (pnpm 설치 및 실행 규칙 포함)
+│   ├── prompt-guide.md          # 작업 경로 선택 가이드 (경로별 프롬프트 예시)
 │   ├── code-review-checklist.md # 코드 리뷰 체크리스트
 │   ├── risk-register/           # 프로젝트별 리스크 이력 저장 (폴더)
+│   ├── phase/                   # Phase 설계 기록 — phase-planner agent가 생성 (폴더)
 │   ├── sprint/                  # 스프린트 계획 기록 (폴더)
-│   ├── sprint-retrospectives/   # 스프린트 회고 기록 — sprint-close agent가 생성 (폴더)
+│   ├── sprint-retrospectives/   # 스프린트 회고 기록 — sprint-review agent가 생성 (폴더)
 │   ├── test-reports/            # 테스트 실행 결과 저장 (폴더)
 │   ├── deploy-history/          # 배포 이력 및 장애/롤백 기록 (폴더)
 │   └── retrospectives/          # 장기/팀 회고 기록 — 분기별 또는 필요 시 수동 작성 (폴더)
@@ -93,37 +103,47 @@ project-root/                    # 프로젝트 루트(Root) 폴더
 ---
 
 ## 에이전트 설명
-이 프로젝트는 5개의 특화된 Claude 에이전트를 포함합니다.
+이 프로젝트는 7개의 특화된 Claude 에이전트를 포함합니다.
 
-**핵심 흐름**: `prd-to-roadmap`(로드맵 생성) → `sprint-planner`(계획) → `sprint-close`(PR+검증) → `deploy-prod`(프로덕션 배포) / 긴급 수정 시: `hotfix-close`(main 직접 배포)
+**핵심 흐름**: `prd-to-roadmap` → (`phase-planner`) → `sprint-planner` → `/sprint-dev` → `sprint-close` → `sprint-review` → `deploy-prod` / 긴급 수정: `hotfix-close`
 
-### 1. prd-to-roadmap
+> 괄호는 선택적 단계 (3스프린트 이상의 대규모 기능 시만 사용)
+
+### 1. prd-to-roadmap (Opus)
 **트리거**: PRD 문서가 있을 때 ROADMAP.md 생성 시
 PRD(제품 요구사항 문서)를 분석하여 Agile/스크럼 방법론에 기반한 ROADMAP.md를 자동 생성합니다.
 
-### 2. sprint-planner
+### 2. phase-planner (Opus)
+**트리거**: 3스프린트 이상의 대규모 기능 설계 시 (sprint-planner 이전에 사용)
+대규모 기능을 독립 배포 가능한 Phase 단위로 분할하고, 보안·성능·UX·인프라 관점에서 설계를 검토합니다. `docs/phase/phase{n}.md` 생성 후 sprint-planner로 핸드오프합니다.
+
+### 3. sprint-planner (Opus)
 **트리거**: 새 스프린트 계획 수립 시
 ROADMAP.md를 분석하고 writing-plans 스킬을 참조하여 실행 가능한 스프린트 계획을 수립합니다. 리스크 식별 시 `docs/risk-register/`에 기록합니다.
 
-### 3. sprint-close
+### 4. sprint-close (Sonnet)
 **트리거**: 스프린트 구현 완료 후
-스프린트 마무리 작업 전체를 자동화합니다:
+문서화 + PR 생성에 집중합니다:
 1. ROADMAP.md 상태 업데이트 (`🔄 진행 중` → `✅ 완료`)
 2. `develop` 브랜치로 PR 생성
-3. 코드 리뷰 (보안/성능/품질 체크리스트)
-4. 자동 검증 실행 (pytest, API curl, Playwright UI)
-5. 테스트 결과 기록 (`docs/test-reports/`)
-6. 리스크 기록 (`docs/risk-register/` — 코드리뷰 이슈 발견 시)
-7. CHANGELOG.md 업데이트
-8. DEPLOY.md 업데이트 + 기록 아카이빙
-9. Sprint 회고 작성 (`docs/sprint-retrospectives/`)
-10. sprint-planner 메모리 업데이트
+3. CHANGELOG.md 업데이트
+4. DEPLOY.md 업데이트 (⬜ 항목 초기 작성) + 기록 아카이빙
+5. sprint-planner 메모리 업데이트
 
-### 4. deploy-prod
+### 5. sprint-review (Sonnet)
+**트리거**: sprint-close 완료 후 (이슈 수정 후 독립 재실행 가능)
+코드 품질 검토 및 검증을 담당합니다:
+1. 코드 리뷰 (보안/성능/품질 체크리스트)
+2. 자동 검증 실행 (pytest, API curl, Playwright UI)
+3. 테스트 결과 기록 (`docs/test-reports/`)
+4. 리스크 기록 (`docs/risk-register/` — Medium/High 이슈 발견 시)
+5. Sprint 회고 작성 (`docs/sprint-retrospectives/`)
+
+### 6. deploy-prod (Sonnet)
 **트리거**: develop 브랜치 QA 완료 후 프로덕션 배포 시
 `develop` → `main` PR 생성, 사전 점검, 배포 후 실서버 검증을 수행합니다.
 
-### 5. hotfix-close
+### 7. hotfix-close (Sonnet)
 **트리거**: 핫픽스 구현 완료 후
 sprint-close의 경량 버전. ROADMAP 업데이트 없이 `main` 브랜치로 PR을 생성하고, 머지 후 develop 역머지를 안내합니다.
 
@@ -132,10 +152,11 @@ sprint-close의 경량 버전. ROADMAP 업데이트 없이 `main` 브랜치로 P
 ### Sprint 흐름은 아래와 같습니다.
 ```
 1. sprint-planner → docs/sprint/sprint{n}.md 생성
-2. git checkout -b sprint{n}
+2. /sprint-dev {n} → sprint{n} 브랜치 생성 + 구현 진입
 3. 구현 작업...
-4. sprint-close → develop PR + 검증 + DEPLOY.md 기록
-5. QA 통과 후 deploy-prod → main 배포
+4. sprint-close → develop PR + DEPLOY.md 초기화
+5. sprint-review → 코드 리뷰 + 검증 + 회고 작성
+6. QA 통과 후 deploy-prod → main 배포
 ```
 
 ### Hotfix 흐름은 아래와 같습니다.
@@ -159,6 +180,7 @@ sprint-close의 경량 버전. ROADMAP 업데이트 없이 `main` 브랜치로 P
 |--------|------|------|
 | `/init` | Claude Code 내장 | 코드베이스 분석 후 CLAUDE.md 검토·갱신 — 첫 실행 시 및 프로젝트 구조 변경 후 사용 |
 | `/setup-project` | 프로젝트 커스텀 | ARCHITECTURE.md 변수 → README.md, CLAUDE.md, deploy.yml, PRD.md 일괄 치환 |
+| `/sprint-dev [n]` | 프로젝트 커스텀 | sprint{n}.md 기반 구현 오케스트레이터 — 브랜치 생성, 현황 파악, 가이드라인 주입 |
 | `/restart` | 프로젝트 커스텀 | Docker Compose 서비스 재시작 |
 
 ## 문서 참고 체계
@@ -255,7 +277,8 @@ git push -u origin main
 > **항목 순서를 지켜주세요.** Docker 파일 생성 전에 ci.yml 빌드 스텝을 활성화하면 CI가 즉시 실패합니다.
 
 - ⬜ `.env` — SETUP.sh가 생성한 `.env` 파일에 실제 값 입력 (DB 비밀번호, API 키 등)
-- ⬜ GitHub Secrets 설정: `LIGHTSAIL_SSH_KEY`, `LIGHTSAIL_HOST`, `GHCR_TOKEN` 등
+- ⬜ GitHub Secrets 설정: `LIGHTSAIL_HOST`, `LIGHTSAIL_USER`, `LIGHTSAIL_SSH_KEY` (GHCR 인증은 `GITHUB_TOKEN` 자동 제공 — 별도 PAT 불필요)
+  > 앱 레벨 시크릿(`POSTGRES_PASSWORD`, `JWT_SECRET`, `SECRET_KEY`, `NEXT_PUBLIC_API_URL`) 전체 목록: `docs/ci-policy.md` 참조
 - ⬜ `.github/workflows/deploy.yml` — 배포 대상 서버 IP/도메인 설정
 - ⬜ `docs/ci-policy.md` — 프로젝트 환경에 맞는 CI 정책 세부 내용 (브랜치명, 테스트 범위 등) 기입
 - ⬜ `docs/dev-process.md` 섹션 6.3 — 실서버 SSH 접속 정보 기입 (호스팅 미정이면 생략)
@@ -306,6 +329,8 @@ docker compose up --build
 > **Claude Code에서 `/init`을 실행하세요.**
 > 1단계의 `/setup-project`와는 별개로, 첫 스프린트 시작 직전에 프로젝트 구조와 빌드 명령어를 분석하여 CLAUDE.md를 최신 상태로 갱신합니다.
 
+> **어떤 에이전트/커맨드를 써야 할지 모르겠다면** `docs/prompt-guide.md`를 참조하세요. 작업 유형별(새 기능, 긴급 패치, 배포 등) 경로와 핵심 프롬프트 예시가 정리되어 있습니다.
+
 ```
 # 최초 1회
 0. Claude Code 실행 → /init → CLAUDE.md 검토·갱신
@@ -314,14 +339,15 @@ docker compose up --build
 # 스프린트마다 반복 (sprint-planner가 ROADMAP에서 다음 번호 자동 결정)
 2. 아래 프롬프트 입력 → sprint-planner 에이전트 → docs/sprint/sprint{n}.md 생성
    > "ROADMAP 검토했어. sprint {n} 계획 세워줘."
-3. git checkout -b sprint{n}  ← 또는 아래 프롬프트로 AI에게 위임
-   > "sprint{n} 계획 확인했어. 브랜치 만들고 구현 시작해줘."
+3. 계획 확인 후 /sprint-dev {n} 입력 → sprint{n} 브랜치 자동 생성 + 구현 진입
 4. 구현 작업
-5. sprint-close 에이전트 → develop PR + 검증 + DEPLOY.md 기록
+5. sprint-close 에이전트 → develop PR + DEPLOY.md 초기화
    > "sprint{n} 구현 완료했어. 마무리 작업 해줘."
+6. sprint-review 에이전트 → 코드 리뷰 + 검증 + 회고 작성
+   > "sprint-review 실행해줘."
 
 # QA 통과 후 (복수 스프린트 묶어서 배포 가능)
-6. deploy-prod 에이전트 → main 배포
+7. deploy-prod 에이전트 → main 배포
    > "수동 검증 완료했고 develop QA 통과했어. 프로덕션 배포 준비해줘."
 ```
 
@@ -330,6 +356,7 @@ docker compose up --build
 ## 참고 문서
 - `ARCHITECTURE.md` — 프로젝트 변수 레지스트리 및 아키텍처 개요
 - `CLAUDE.md` — AI 협업 지침, 빌드/테스트 명령어, 워크플로우 지침
+- `docs/prompt-guide.md` — 작업 경로 선택 가이드 (어떤 상황에 어떤 프롬프트를 쓸지)
 - `docs/dev-process.md` — 개발 프로세스 전체 가이드
 - `docs/ci-policy.md` — CI/CD 정책 상세
 - `docs/setup-guide.md` — 환경 설정 가이드

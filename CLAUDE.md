@@ -13,14 +13,23 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 이 저장소는 **Claude Code 협업 스타터 템플릿**이다. 실제 앱 코드는 스프린트 진행 중에 추가된다.
 
 **핵심 흐름**: PRD.md → ROADMAP.md → sprint{n} 브랜치 → develop PR → main 배포
-**에이전트 역할**: `prd-to-roadmap`(PRD→ROADMAP) → `sprint-planner`(계획) → `sprint-close`(PR+검증) → `deploy-prod`(프로덕션) / `hotfix-close`(긴급패치)
+**에이전트 역할**:
+- `prd-to-roadmap` (Opus): PRD → ROADMAP.md 생성
+- `phase-planner` (Opus): 3스프린트+ 대규모 기능 Phase 설계 — sprint-planner 이전 선택적 사용
+- `sprint-planner` (Opus): ROADMAP 기반 스프린트 계획 수립
+- `/sprint-dev [n]`: 구현 단계 오케스트레이터 (브랜치 생성, 현황 파악)
+- `sprint-close` (Sonnet): 문서화 + PR 생성 (ROADMAP, CHANGELOG, DEPLOY.md)
+- `sprint-review` (Sonnet): 코드 리뷰 + 자동 검증 + 회고 — sprint-close 완료 후 실행
+- `deploy-prod` (Sonnet): develop → main 프로덕션 배포
+- `hotfix-close` (Sonnet): 긴급패치 마무리
 
 > **에이전트 메모리**: `.claude/agents/agent-memory/`는 에이전트별 서브디렉토리로 구성된다.
 > ```
 > .claude/agents/agent-memory/
-> ├── sprint-planner/MEMORY.md   # 스프린트 번호·Velocity 누적
-> ├── prd-to-roadmap/MEMORY.md   # PRD→ROADMAP 변환 이력
-> └── deploy-prod/MEMORY.md      # 배포 이력
+> ├── sprint-planner/MEMORY.md    # 스프린트 번호·Velocity 누적
+> ├── prd-to-roadmap/MEMORY.md    # PRD→ROADMAP 변환 이력
+> ├── phase-planner/MEMORY.md     # Phase 설계 이력
+> └── deploy-prod/MEMORY.md       # 배포 이력
 > ```
 > 변경 시 반드시 git commit하여 팀 전체와 동기화한다.
 
@@ -83,7 +92,19 @@ docker compose -f docker-compose.prod.yml up   # 프로덕션 설정으로 실�
 | 커맨드 | 구분 | 설명 |
 |--------|------|------|
 | `/setup-project` | 프로젝트 커스텀 | `ARCHITECTURE.md` 변수 → `README.md`, `CLAUDE.md`, `deploy.yml`, `PRD.md` 플레이스홀더 일괄 치환 |
+| `/sprint-dev [n]` | 프로젝트 커스텀 | `sprint{n}.md` 기반 구현 오케스트레이터 — 브랜치 생성, 현황 파악, 가이드라인 주입 |
 | `/restart` | 프로젝트 커스텀 | Docker Compose 서비스 재시작 |
+
+## 조건부 자동 로드 규칙 (`.claude/rules/`)
+
+rules/ 파일은 조건에 따라 자동 로드됩니다. skills/는 에이전트/사용자가 명시적으로 참조할 때 로드됩니다.
+
+| 파일 | 로드 조건 | 역할 |
+|------|----------|------|
+| `sprint-workflow.md` | 전체 대화 | 에이전트 사용 순서, 브랜치 규칙, Hotfix vs Sprint 판단 |
+| `backend.md` | `app/backend/**/*.py` 등 접근 시 | 백엔드 개발 제약 (테스트, 마이그레이션, 보안) |
+| `frontend.md` | `app/frontend/**/*.ts,tsx` 등 접근 시 | 프론트엔드 개발 제약 (TypeScript, API 추상화, XSS) |
+| `notion.md` | "Notion/노션" 언급 또는 Notion MCP 사용 시 | Notion MCP 사용 규칙, 페이지 ID 매핑 |
 
 ### 내장 스킬 (`.claude/skills/`)
 
@@ -130,10 +151,11 @@ docker compose -f docker-compose.prod.yml up   # 프로덕션 설정으로 실�
 - 📎 배포 절차: `docs/dev-process.md` 섹션 6.2 / 롤백: 섹션 6.4 / Notion 업데이트: 섹션 8.5
 
 **필수 GitHub Secrets** (Settings > Secrets and variables > Actions):
-- `CR_PAT`: GHCR push용 PAT (패키지 write 권한 포함)
 - `LIGHTSAIL_HOST`: 프로덕션 서버 IP 또는 도메인
 - `LIGHTSAIL_USER`: SSH 접속 사용자명
 - `LIGHTSAIL_SSH_KEY`: SSH 개인키 (PEM 형식)
+
+> GHCR 인증은 `secrets.GITHUB_TOKEN`(자동 제공)을 사용합니다. 별도 PAT 설정 불필요.
 
 ### Develop 브랜치
 - `sprint{n}` → `develop` PR은 sprint-close agent가 생성한다.
@@ -170,12 +192,12 @@ docker compose -f docker-compose.prod.yml up   # 프로덕션 설정으로 실�
 
 3. sprint 개발이 plan 모드로 진행될 때는 다음을 꼭 준수합니다.
   - karpathy-guidelines skill을 준수한다.
-  - sprint 가 새로 시작될 때는 `develop` 기반으로 `sprint{n}` 브랜치를 생성하고 해당 브랜치에서 작업한다. (worktree 사용하지 말아주세요)
-    (`git checkout develop && git checkout -b sprint{n}`)
-  - 다음과 같이 agent를 활용한다.
-    - sprint-planner agent가 계획 수립 작업을 수행하도록 한다.
-    - 구현/검증 단계에서는 각 task의 내용에 따라 적절한 agent가 있는지 확인 한 후 적극 활용한다.
-    - 스프린트 구현이 완료되면 sprint-close agent를 사용하여 마무리 작업을 수행한다.
+  - 3스프린트 이상의 대규모 기능은 sprint-planner 이전에 phase-planner agent로 Phase 설계를 먼저 수행한다.
+  - sprint-planner agent가 계획 수립 작업을 수행하도록 한다.
+  - 계획 확인 후 `/sprint-dev {n}` 커맨드로 구현 단계에 진입한다. (브랜치 자동 생성, worktree 사용 금지)
+  - 스프린트 구현 완료 후 **두 단계로** 마무리한다:
+    1. sprint-close agent: 문서화 + PR 생성
+    2. sprint-review agent: 코드 리뷰 + 자동 검증 + 회고
   - CI/배포 상세 절차는 위 CI/CD 정책을 참조한다.
 
 4. hotfix 개발이 plan 모드로 진행될 때는 다음을 꼭 준수한다.
@@ -206,7 +228,9 @@ docker compose -f docker-compose.prod.yml up   # 프로덕션 설정으로 실�
 | 워크플로우 | 입력 | 출력 위치 | 전략 문서 |
 |-----------|------|-----------|-----------|
 | PRD → ROADMAP | PRD.md | ROADMAP.md | strategy/planning.md |
+| Phase Planning | ROADMAP.md | docs/phase/phase{n}.md | phase-planner agent |
 | Sprint Planning | ROADMAP.md | docs/sprint/sprint{n}.md | strategy/planning.md |
+| Sprint Review | sprint{n}.md + git log | docs/test-reports/, docs/sprint-retrospectives/ | .claude/skills/code-review.md, test-checklist.md, retrospective.md |
 | Sprint Retrospective | - | docs/sprint-retrospectives/ | strategy/retrospectives.md / .claude/skills/retrospective.md |
 | Test Report | - | docs/test-reports/ | strategy/testing.md / .claude/skills/test-checklist.md |
 | Risk Register | - | docs/risk-register/ | strategy/risk-management.md |

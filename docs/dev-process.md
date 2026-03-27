@@ -59,26 +59,28 @@ hotfix/*  →  PR to main  →  서버 자동 배포  →  main을 develop에 �
 
 ### 3.2 구현
 
-- `sprint{n}` 브랜치 생성 후 작업 (worktree 사용 금지)
-- 브랜치 생성: `git checkout -b sprint{n}`
+- `/sprint-dev {n}` 커맨드로 구현 단계에 진입합니다 (브랜치 자동 생성 + 현황 파악).
+- 브랜치는 반드시 `develop` 기반으로 생성합니다 (worktree 사용 금지):
+  ```bash
+  git checkout develop && git checkout -b sprint{n}
+  ```
 
 ### 3.3 마무리 (sprint-close agent)
 
 1. 현재 상태 파악 (브랜치, ROADMAP, DEPLOY.md 확인)
 2. ROADMAP.md 상태 업데이트 (`🔄 진행 중` → `✅ 완료`)
 3. sprint{n} → **develop** PR 생성 (main이 아닌 develop)
-4. code-review skill 체크리스트에 따라 코드 리뷰 수행
-5. test-checklist skill의 "Sprint" 컬럼 기준으로 자동 검증 실행
-6. `docs/deploy-history/YYYY-MM-DD.md`에 이전 완료 기록 이동 후 DEPLOY.md 업데이트
-7. Sprint 회고 작성 (`docs/sprint-retrospectives/sprint{n}.md`)
-8. sprint-planner MEMORY.md 스프린트 현황 업데이트
-9. 최종 보고 (PR URL, 검증 결과, 수동 항목, Notion 업데이트 필요 여부)
+4. CHANGELOG.md 업데이트 (`[Unreleased]` 섹션에 변경사항 추가)
+5. DEPLOY.md 업데이트: ⬜ 항목 초기 작성 (sprint-review 실행, docker compose up 포함) + 이전 기록 아카이빙
+6. sprint-planner MEMORY.md 스프린트 현황 업데이트
+7. 최종 보고 (PR URL, 다음 단계 안내)
 
+> **다음 단계**: `sprint-review` 에이전트로 코드 리뷰·자동 검증·회고 작성을 실행합니다.
 > **참고**: `develop` → `main` merge는 별도 QA 통과 후 deploy-prod agent를 사용합니다.
 
 ### 3.4 회고 (Sprint Retrospective)
 
-상세 절차는 sprint-close agent를 참조합니다. sprint-close agent가 git 이력, 코드 리뷰 결과, 검증 결과를 종합하여 `docs/sprint-retrospectives/sprint{n}.md`를 자동 작성합니다.
+상세 절차는 sprint-review agent를 참조합니다. sprint-review agent가 git 이력, 코드 리뷰 결과, 검증 결과를 종합하여 `docs/sprint-retrospectives/sprint{n}.md`를 자동 작성합니다.
 
 ---
 
@@ -200,6 +202,11 @@ ssh -i {SSH_KEY_PATH} {USER}@{SERVER_IP} \
 - 다음 배포 시작 시 이전 배포 사이클 전체를 `docs/deploy-history/YYYY-MM-DD.md`로 이동
 - 체크리스트는 GFM `[x]`/`[ ]` 대신 이모지(`✅`/`⬜`)를 사용합니다.
 
+**편집 담당 (에이전트별 역할)**:
+- `sprint-close`: ⬜ 항목 초기 작성 (sprint-review 실행, docker compose up 등) + 이전 기록 아카이빙
+- `sprint-review`: 검증 결과를 ✅/❌로 업데이트 (자동 검증 완료 항목)
+- `deploy-prod`: 배포 기록 추가 + 이전 배포 기록 아카이빙
+
 ### 8.2 docs/deploy-history/
 
 - 날짜별 배포/검증 기록 아카이브
@@ -225,7 +232,7 @@ ssh -i {SSH_KEY_PATH} {USER}@{SERVER_IP} \
 | 새 기능 추가 | 기능 명세 |
 | 아키텍처 변경 | 시스템 아키텍처 (Mermaid 다이어그램 포함) |
 
-사용자가 지시할 때 업데이트합니다. sprint-close agent는 해당되는 Notion 페이지 업데이트 필요 여부를 안내합니다.
+사용자가 지시할 때 업데이트합니다. sprint-review agent는 해당되는 Notion 페이지 업데이트 필요 여부를 최종 보고에서 안내합니다.
 
 ### 8.6 문서 최신화 트리거
 
@@ -237,7 +244,7 @@ ssh -i {SSH_KEY_PATH} {USER}@{SERVER_IP} \
 | 에이전트 워크플로우 변경 | `.claude/agents/*.md` 해당 파일 | 직접 수정 |
 | 새 버전 배포 | Notion 릴리즈 노트 (섹션 8.5 참조) | deploy-prod agent |
 | 스프린트 추가/완료 | `ROADMAP.md` 상태 업데이트 | sprint-close agent |
-| DB/API/기능 변경 시 Notion | 섹션 8.5 트리거 참조 | sprint-close agent |
+| DB/API/기능 변경 시 Notion | 섹션 8.5 트리거 참조 | sprint-review agent |
 
 ---
 

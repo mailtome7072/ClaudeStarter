@@ -50,11 +50,11 @@ jobs:
         with:
           python-version: "3.12"
           cache: "pip"
-          cache-dependency-path: backend/requirements.txt
+          cache-dependency-path: app/backend/requirements.txt
       - name: 의존성 설치
-        run: pip install -r backend/requirements.txt
+        run: pip install -r app/backend/requirements.txt
       - name: pytest 실행
-        run: pytest backend/tests/ -v --tb=short
+        run: pytest app/backend/tests/ -v --tb=short
 ```
 
 **GitHub Actions CI 예시 (프론트엔드 pnpm):**
@@ -128,7 +128,7 @@ PR이 `develop` 또는 `main`으로 올라오면 GitHub Actions가 자동으로 
 
 ### 필수 통과 조건
 
-1. 백엔드 테스트 — `backend/tests/` 전체 테스트는 `pytest`로 통과 필수
+1. 백엔드 테스트 — `app/backend/tests/` 전체 테스트는 `pytest`로 통과 필수
 2. 프론트엔드 테스트 — `pnpm test` 통과 필수 (프론트엔드 소스 경로 확정 후 `ci.yml`에서 활성화)
 3. Docker 이미지 빌드 성공 — 백엔드/프론트엔드 이미지 빌드 확인 (Dockerfile 생성 후 활성화)
 
