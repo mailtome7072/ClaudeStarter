@@ -62,7 +62,8 @@ memory: project
 - 기준 2
 
 ### 🧪 Playwright MCP 검증 시나리오
-각 Phase 완료 시 개발 서버 실행 후 Playwright MCP 도구로 아래 시나리오를 직접 검증합니다.
+각 Phase 완료 후 sprint-review 단계에서 Playwright MCP 도구로 아래 시나리오를 검증합니다.
+(ROADMAP 생성 시점에는 검증 시나리오를 계획만 합니다. 실행은 구현 완료 후 수행합니다.)
 
 ```
 # 검증 시나리오 예시 (각 Phase별 구체적 항목으로 작성)
@@ -145,6 +146,8 @@ ROADMAP.md 생성 완료 후 내용을 검토하고, 아래 프롬프트를 입�
 > "[기능명] Phase 설계해줘." → `phase-planner` 에이전트 → Phase 문서 완성 후 sprint-planner
 
 판단 기준: **단일 기능이 3스프린트 이상** 예상되거나, **여러 모듈에 걸친 아키텍처 결정**이 필요한 경우 phase-planner를 사용합니다. 그 외(1~2스프린트 규모)는 sprint-planner를 바로 실행하세요.
+
+> ROADMAP.md를 직접 수정한 경우에도 sprint-planner를 그대로 실행합니다. (재수립 불필요)
 
 ## 주의사항
 

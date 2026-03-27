@@ -19,7 +19,7 @@ sprint-close agent의 코드 리뷰 단계 및 hotfix-close agent의 경량 코�
 리뷰어의 인지 과부하를 막고 결함 감지율을 유지하기 위한 기준. (연구 기반: SmartBear, 2024)
 
 - **Sprint PR**: 200-400줄 이내 권장 / 초과 시 기능 단위로 분리 검토
-- **Hotfix PR**: 50줄 이내 (CLAUDE.md 기준과 일치)
+- **Hotfix PR**: 50줄 이내 (dev-process.md 섹션 2 기준 — 변경된 코드 diff 기준)
 - 400줄 초과 PR은 리뷰 품질이 급격히 저하되므로 분리를 우선 권고한다.
 - 400줄 초과 PR 발견 시 `sprint-review`는 사용자에게 분리 검토를 먼저 권고하고 진행 여부를 확인합니다.
 

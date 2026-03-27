@@ -30,7 +30,7 @@ description: 스프린트/핫픽스 워크플로우 핵심 규칙. 모든 대화
 
 **Hotfix 조건** (모두 만족해야 함):
 - 프로덕션 긴급 이슈
-- 파일 3개 이하, 코드 50줄 이하
+- 파일 3개 이하, 변경된 코드 50줄 이하 (diff 기준 — git diff 변경 라인 수)
 - DB 변경 없음, 새 의존성 없음
 
 **Hotfix 브랜치 명명**: `hotfix/{설명}` — 예: `hotfix/fix-login-crash`, `hotfix/db-connection-timeout`, `hotfix/null-pointer-api`

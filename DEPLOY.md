@@ -8,7 +8,9 @@
 ## 아카이빙 규칙
 
 - **시점**: 다음 스프린트/핫픽스 배포 시작 전 (이전 배포 사이클 전체를 이동)
-- **담당**: sprint-close / hotfix-close agent가 자동 처리 (수동 이동 시 아래 규칙 준수)
+- **담당**: sprint-close / hotfix-close agent (스프린트·핫픽스 완료 시 1차 아카이빙),
+            deploy-prod agent (프로덕션 배포 시 최종 아카이빙)
+            (수동 이동 시 아래 규칙 준수)
 - **파일명**: `docs/deploy-history/YYYY-MM-DD.md` (배포 날짜 기준)
 - **방식**: 이 파일의 완료된 배포 섹션 전체를 해당 날짜 파일로 이동 후 해당 섹션 삭제
 

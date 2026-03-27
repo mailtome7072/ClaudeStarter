@@ -44,6 +44,7 @@ sprint-close는 **문서화 + PR 생성**에만 집중합니다. 이 구조의 �
   - 주요 변경 파일 목록
   - 코드 리뷰 및 검증은 sprint-review 에이전트가 수행 예정임을 명시
 - **머지 후 원격 브랜치를 삭제하지 않습니다.** 스프린트 브랜치는 이력 보존을 위해 원격에 유지합니다.
+  (`git push origin --delete sprint{n}` 실행 금지)
 - **참고**: `develop` → `main` merge는 별도 QA 통과 후 deploy-prod agent를 통해 수행합니다.
 
 ### 4단계: CHANGELOG.md 업데이트
@@ -84,6 +85,11 @@ sprint-close는 **문서화 + PR 생성**에만 집중합니다. 이 구조의 �
 
 - `.claude/agents/agent-memory/sprint-planner/MEMORY.md`의 스프린트 현황에 완료된 스프린트를 추가합니다.
 - 완료 번호·다음 사용 가능한 스프린트 번호·완료 날짜를 갱신합니다.
+  기록 형식 예시:
+  ```
+  - 마지막 완료 스프린트: Sprint {N} (YYYY-MM-DD)
+  - 다음 스프린트 번호: {N+1}
+  ```
 - 계획 수립 중 발견된 사항은 `sprint-planner`가 기록하므로 중복 기재하지 않습니다.
 
 ### 7단계: 최종 보고
