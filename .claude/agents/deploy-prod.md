@@ -15,7 +15,7 @@ color: red
 - `docs/dev-process.md` 존재 여부 (없으면 사용자에게 작성 요청)
 - GitHub Secrets 설정 완료 여부 (`LIGHTSAIL_HOST`, `LIGHTSAIL_USER`, `LIGHTSAIL_SSH_KEY`) — GHCR 인증은 `GITHUB_TOKEN` 자동 제공으로 별도 PAT 불필요
 - `develop` 브랜치가 원격에 존재하고 CI가 통과된 상태
-- `DEPLOY.md`의 `⬜ sprint-review 에이전트 실행` 항목이 `✅`로 처리되었는지 확인 (sprint-review 미완료 시 사용자에게 알림)
+- `DEPLOY.md`의 현재 Sprint 섹션에서 `- ✅ sprint-review 에이전트 실행` 항목이 체크되었는지 확인합니다. 미체크 시 사용자에게 sprint-review 실행을 요청합니다.
 
 참조 문서:
 - CI/CD 정책: `docs/ci-policy.md` (없으면 CLAUDE.md CI/CD 정책 섹션)
@@ -109,7 +109,7 @@ EOF
 
 ### 4단계: DEPLOY.md 업데이트 (아카이빙)
 
-1. `DEPLOY.md`의 기존 완료 기록을 `docs/deploy-history/YYYY-MM-DD.md`로 이동합니다.
+1. `DEPLOY.md`의 기존 완료 기록(sprint-close가 기록한 Sprint 항목 포함)을 `docs/deploy-history/YYYY-MM-DD.md`로 이동합니다.
    - 해당 날짜 파일이 이미 존재하면 파일 상단에 추가합니다.
 2. `DEPLOY.md`에 배포 기록을 추가합니다:
 

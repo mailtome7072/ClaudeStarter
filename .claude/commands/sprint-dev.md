@@ -32,16 +32,18 @@ sprint{n}.md 계획 문서를 기반으로 구현 단계에 진입합니다. 브
 
 현재 브랜치가 `sprint{n}`인지 확인합니다:
 
+- **브랜치 생성 전 `git pull origin develop` 반드시 실행** (fetch만으로는 부족; 로컬 develop에 반영 필요):
+  ```bash
+  git checkout develop && git pull origin develop
+  ```
 - `sprint{n}` 브랜치가 없으면 develop 기반으로 생성:
   ```bash
-  git checkout develop
   git checkout -b sprint{n}
   ```
 - `sprint{n}` 브랜치가 이미 있으면 전환:
   ```bash
   git checkout sprint{n}
   ```
-- develop 브랜치가 최신인지 확인 후 브랜치 생성 (`git pull origin develop` 먼저)
 
 ### 4단계: 구현 현황 보고
 

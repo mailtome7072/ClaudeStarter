@@ -67,6 +67,8 @@ sprint-close는 **문서화 + PR 생성**에만 집중합니다. 이 구조의 �
 
 ### 5단계: DEPLOY.md 업데이트 (아카이빙)
 
+> sprint-close는 이전 배포 기록을 아카이빙하고 이번 스프린트 미완료 항목을 기록합니다. 스프린트 배포 후 최종 완료 아카이빙은 `deploy-prod`가 수행합니다.
+
 1. `DEPLOY.md`의 기존 완료 기록을 `docs/deploy-history/YYYY-MM-DD.md`로 이동합니다.
    - 해당 날짜 파일이 이미 존재하면 파일 상단에 추가합니다.
 2. `DEPLOY.md`에 이번 스프린트 항목을 새 기록으로 추가합니다 (PR URL 포함):
@@ -81,8 +83,8 @@ sprint-close는 **문서화 + PR 생성**에만 집중합니다. 이 구조의 �
 ### 6단계: sprint-planner MEMORY.md 업데이트
 
 - `.claude/agents/agent-memory/sprint-planner/MEMORY.md`의 스프린트 현황에 완료된 스프린트를 추가합니다.
-- 다음 사용 가능한 스프린트 번호를 갱신합니다.
-- 스프린트에서 발견된 핵심 주의사항이 있으면 MEMORY.md에 추가합니다.
+- 완료 번호·다음 사용 가능한 스프린트 번호·완료 날짜를 갱신합니다.
+- 계획 수립 중 발견된 사항은 `sprint-planner`가 기록하므로 중복 기재하지 않습니다.
 
 ### 7단계: 최종 보고
 

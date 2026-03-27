@@ -105,7 +105,7 @@ Phase 문서 완료 후 사용자에게 보고하고 다음 단계를 안내합�
 - Phase 분할 요약 (각 Phase 목표, 스프린트 수)
 - 전문가 검토 핵심 권고사항
 - 첫 번째 스프린트 계획 안내:
-  > "Phase {n} 설계 완료됐어. sprint-planner로 sprint {m} 계획 세워줘."
+  > "Phase {n} 설계 완료됐어. sprint-planner로 sprint {m} 계획 세워줘. 참조할 Phase 문서: docs/phase/phase{n}.md"
 
 ## 문서 작성 규칙
 
