@@ -91,7 +91,7 @@ docker compose -f docker-compose.prod.yml up   # 프로덕션 설정으로 실�
 
 | 커맨드 | 구분 | 설명 |
 |--------|------|------|
-| `/setup-project` | 프로젝트 커스텀 | `ARCHITECTURE.md` 변수 → `README.md`, `CLAUDE.md`, `deploy.yml`, `PRD.md` 플레이스홀더 일괄 치환 |
+| `/setup-project` | 프로젝트 커스텀 | `ARCHITECTURE.md` 변수 → `README.md`, `CLAUDE.md`, `PRD.md`, `docs/ci-policy.md` 플레이스홀더 일괄 치환 (`deploy.yml`은 `github.repository` 내장 변수 사용으로 치환 불필요) |
 | `/sprint-dev [n]` | 프로젝트 커스텀 | `sprint{n}.md` 기반 구현 오케스트레이터 — 브랜치 생성, 현황 파악, 가이드라인 주입 (**사용자가 직접 입력하는 커맨드** — 에이전트가 대신 호출하지 않음) |
 | `/restart` | 프로젝트 커스텀 | Docker Compose 서비스 재시작 |
 
