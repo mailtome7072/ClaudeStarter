@@ -93,13 +93,13 @@ jobs:
 
 ### Docker 이미지 태깅 규칙
 
-> `/setup-project` 실행 시 `${github_org}`, `${github_repo}` 가 자동 치환됩니다.
-
 | 이미지 | Registry |
 |--------|---------|
-| 백엔드 | `ghcr.io/${github_org}/${github_repo}-backend` |
-| 프론트엔드 | `ghcr.io/${github_org}/${github_repo}-frontend` |
-| nginx | `ghcr.io/${github_org}/${github_repo}-nginx` |
+| 백엔드 | `ghcr.io/${{ github.repository }}-backend` |
+| 프론트엔드 | `ghcr.io/${{ github.repository }}-frontend` |
+| nginx | `ghcr.io/${{ github.repository }}-nginx` |
+
+> `github.repository`는 GitHub Actions에서 `owner/repo` 형식으로 자동 제공됩니다. `/setup-project` 치환 불필요.
 
 | 브랜치 | Image Tag |
 |--------|-----------|

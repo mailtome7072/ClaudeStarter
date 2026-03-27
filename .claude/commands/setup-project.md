@@ -35,10 +35,6 @@
 - `${github_org}` → 실제 github_org 값
 - `${github_repo}` → 실제 github_repo 값
 
-**.github/workflows/deploy.yml**
-- `${github_org}` → 실제 github_org 값
-- `${github_repo}` → 실제 github_repo 값
-
 **PRD.md**
 - `${decision_date}` → 실제 decision_date 값
 
@@ -65,9 +61,10 @@
 수정된 파일:
   - README.md
   - CLAUDE.md
-  - .github/workflows/deploy.yml
   - PRD.md
   - docs/ci-policy.md
+
+참고: .github/workflows/deploy.yml은 github.repository 내장 변수를 사용하므로 치환 불필요합니다.
 
 ⚠️  다음 항목은 수동 설정이 필요합니다:
   - GitHub Secrets: LIGHTSAIL_HOST, LIGHTSAIL_USER, LIGHTSAIL_SSH_KEY (GHCR 인증은 GITHUB_TOKEN 자동 제공)

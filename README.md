@@ -259,7 +259,8 @@ git push -u origin main
 
 > 이 단계를 완료해야 `prd-to-roadmap` 에이전트로 로드맵을 생성할 수 있습니다.
 > PRD.md 문서를 열고 아래 체크리스트의 내용을 개발하실 프로젝트 내용으로 작성해 주세요.
-> 올바를 PRD가 작성되어야 올바른 ROADMAP을 만드실 수 있습니다. 
+> 올바를 PRD가 작성되어야 올바른 ROADMAP을 만드실 수 있습니다.
+> 작성 예시는 [`docs/EXAMPLE-prd.md`](docs/EXAMPLE-prd.md)를 참고하세요.
 
 - ⬜ `PRD.md` — 상단 메타데이터 블록의 프로젝트명·버전·날짜·담당자 입력
 - ⬜ `PRD.md` — 문제 정의, 목표 및 성공 지표 작성

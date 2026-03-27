@@ -8,24 +8,15 @@ Claude Code에서 어떤 프롬프트를 사용해야 할지 안내합니다.
 
 상황에 따라 아래 경로 중 하나를 선택하세요:
 
-| 경로 | 상황 | 사용할 에이전트/커맨드 |
-|------|------|----------------------|
-| **A** | 새 프로젝트 시작 (PRD 작성 완료) | `prd-to-roadmap` → `sprint-planner` → `/sprint-dev` |
-| **B** | 대규모 기능 설계 (3스프린트 이상) | `phase-planner` → `sprint-planner` → `/sprint-dev` |
-| **C** | 일반 스프린트 (1~2스프린트) | `sprint-planner` → `/sprint-dev` |
-| **D** | 긴급 버그 수정 (Hotfix) | `hotfix/{설명}` 브랜치 생성 → `hotfix-close` |
-| **E** | 프로덕션 배포 (QA 완료 후) | `deploy-prod` |
+| 경로 | 상황 | 시작 | 마무리 | 모델 |
+|------|------|------|--------|------|
+| **A** | 새 프로젝트 시작 (PRD 완료) | `prd-to-roadmap` → `sprint-planner` → `/sprint-dev` | `sprint-close` → `sprint-review` | Opus→Sonnet |
+| **B** | 대규모 기능 (3스프린트+) | `phase-planner` → `sprint-planner` → `/sprint-dev` | `sprint-close` → `sprint-review` | Opus→Sonnet |
+| **C** | 일반 스프린트 (1~2스프린트) | `sprint-planner` → `/sprint-dev` | `sprint-close` → `sprint-review` | Opus→Sonnet |
+| **D** | 긴급 버그 수정 (Hotfix) | `hotfix/{설명}` 브랜치 직접 생성 후 구현 | `hotfix-close` | Sonnet |
+| **E** | 프로덕션 배포 (QA 완료 후) | — (develop QA 통과 후) | `deploy-prod` | Sonnet |
 
----
-
-## 모델 전략
-
-에이전트는 작업 성격에 따라 모델을 자동 선택합니다. 별도 설정 불필요.
-
-| 단계 | 모델 | 에이전트 |
-|------|------|---------|
-| 계획/설계 | Opus (고성능 추론) | prd-to-roadmap, phase-planner, sprint-planner |
-| 실행/검증/배포 | Sonnet (비용 효율) | sprint-close, sprint-review, deploy-prod, hotfix-close |
+> 모델은 에이전트가 자동 선택합니다. 별도 설정 불필요.
 
 ---
 

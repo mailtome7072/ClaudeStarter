@@ -31,9 +31,10 @@
 |------|----------|
 | `README.md` | 제목(`project_name`), 설명(`project_description`), git remote URL(`github_org`, `github_repo`) |
 | `CLAUDE.md` | 원격 저장소 URL(`repo_url`) |
-| `.github/workflows/deploy.yml` | GHCR 이미지명 3곳(`ghcr_prefix`) |
 | `PRD.md` | 작성일 메타데이터(`decision_date`) |
 | `docs/ci-policy.md` | GHCR 이미지명(`ghcr_prefix`) |
+
+> **`.github/workflows/deploy.yml`은 치환 불필요**: `github.repository` 내장 변수를 사용하므로 클론 직후 바로 동작합니다.
 
 ---
 
