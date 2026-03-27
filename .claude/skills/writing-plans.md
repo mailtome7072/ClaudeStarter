@@ -53,6 +53,26 @@
 - {특이사항, 의존성, 리스크}
 ```
 
+#### skill: 선언 (선택)
+
+Task 항목에 `skill:` 을 명시하면 `/sprint-dev` 실행 시 해당 Task 구현 전에 지정 스킬을 자동 로드합니다.
+
+```markdown
+- ⬜ {작업 A} — {담당/비고} · skill: systematic-debugging
+- ⬜ {작업 B}                          ← skill: 없으면 자동 건너뜀
+```
+
+사용 가능한 스킬:
+
+| 스킬 | 적합한 작업 유형 |
+|------|----------------|
+| `systematic-debugging` | 버그 수정, 원인 불명 오류 추적 |
+| `karpathy-guidelines` | 복잡한 구현 Task의 원칙 재확인 |
+| `code-review` | 중요 로직 자기 검토 |
+| `test-checklist` | 테스트 작성 Task |
+
+> **참고**: 모든 Task 완료 후 `simplify` 스킬이 **자동 실행**됩니다 (`skill:` 선언 불필요).
+
 ### 4. 작업 목록 작성 원칙
 - 각 작업은 하루 이내에 완료 가능한 단위로 분리한다.
 - 작업 간 의존 관계가 있으면 순서를 명시한다.

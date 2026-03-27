@@ -111,6 +111,7 @@ rules/ 파일은 조건에 따라 자동 로드됩니다. skills/는 에이전�
 | 스킬 | 용도 |
 |------|------|
 | `karpathy-guidelines` | 코드 작성·수정 시 적용 원칙 |
+| `simplify` | Task 완료 후 자동 실행 — 불필요한 추상화·중복·미사용 코드 제거 (`/sprint-dev` 내 Task별 자동 호출) |
 | `writing-plans` | 계획 문서 작성 형식·INVEST 기준 정의 (sprint-planner agent가 주로 참조하며, 직접 호출도 가능) |
 | `code-review` | PR 코드 리뷰 체크리스트 |
 | `test-checklist` | 테스트 보고서 작성 형식 |

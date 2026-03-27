@@ -71,6 +71,39 @@ Sprint {n} 구현 모드 진입
 - **프론트엔드 파일 접근 시**: `.claude/rules/frontend.md` 자동 로드
 - **커밋**: 작업 단위별로 의미있는 커밋 메시지 (한국어)
 
+### 6단계: Task 레벨 스킬 실행 (자동)
+
+각 Task를 구현할 때 다음 순서로 스킬을 적용합니다:
+
+**① Task 시작 전 — 선언 스킬 로드**
+
+`sprint{n}.md`의 Task 항목에 `skill:` 이 명시된 경우, 구현 전에 해당 스킬을 읽고 적용합니다.
+
+```
+- ⬜ 로그인 API 버그 수정 · skill: systematic-debugging
+```
+
+| 스킬 이름 | 적합한 작업 유형 |
+|----------|----------------|
+| `systematic-debugging` | 버그 수정, 원인 불명 오류 추적 |
+| `karpathy-guidelines` | 전체 구현 원칙 재확인이 필요한 복잡한 Task |
+| `code-review` | 중요 로직 자기 검토 |
+| `test-checklist` | 테스트 작성 Task |
+
+`skill:` 이 없는 Task는 이 단계를 건너뜁니다.
+
+**② Task 완료 후 — simplify 자동 실행 (생략 불가)**
+
+모든 Task 구현 완료 후 `.claude/skills/simplify.md` 스킬을 실행합니다.
+
+```
+[Task 구현] → [simplify 실행] → [커밋]
+```
+
+- 불필요한 추상화, 중복 로직, 사용하지 않는 코드를 제거한다.
+- 기능 변경 없이 코드 구조만 단순화한다.
+- simplify 결과를 한 줄로 보고한 뒤 커밋한다.
+
 ### 완료 신호
 
 구현이 완료되면 sprint-close agent를 사용합니다:
