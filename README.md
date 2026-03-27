@@ -61,7 +61,7 @@ project-root/                    # 프로젝트 루트(Root) 폴더
 │   │   ├── code-review.md          # 코드 리뷰 체크리스트
 │   │   ├── test-checklist.md       # 검증 매트릭스 (Sprint/Hotfix/deploy-prod)
 │   │   ├── retrospective.md        # 스프린트 회고 작성 지침
-│   │   └── simplify.md             # Task 완료 후 코드 단순화 (sprint-dev 자동 실행)
+│   │   └── simplify.md             # 모든 Task 완료 후 코드 단순화 1회 실행 (sprint-dev 자동 호출)
 │   └── settings.json            # Claude 권한 설정
 │
 ├── .github/
@@ -109,14 +109,14 @@ project-root/                    # 프로젝트 루트(Root) 폴더
 
 **핵심 흐름**: `prd-to-roadmap` → (`phase-planner`) → `sprint-planner` → `/sprint-dev` → `sprint-close` → `sprint-review` → `deploy-prod` / 긴급 수정: `hotfix-close`
 
-> 괄호는 선택적 단계 (3스프린트 이상의 대규모 기능 시만 사용)
+> 괄호는 선택적 단계 (3스프린트 이상 또는 여러 모듈에 걸친 아키텍처 결정이 필요한 경우에만 사용)
 
 ### 1. prd-to-roadmap (Opus)
 **트리거**: PRD 문서가 있을 때 ROADMAP.md 생성 시
 PRD(제품 요구사항 문서)를 분석하여 Agile/스크럼 방법론에 기반한 ROADMAP.md를 자동 생성합니다.
 
 ### 2. phase-planner (Opus)
-**트리거**: 3스프린트 이상의 대규모 기능 설계 시 (sprint-planner 이전에 사용)
+**트리거**: 3스프린트 이상의 대규모 기능 또는 여러 모듈에 걸친 아키텍처 결정이 필요한 경우 (sprint-planner 이전에 사용)
 대규모 기능을 독립 배포 가능한 Phase 단위로 분할하고, 보안·성능·UX·인프라 관점에서 설계를 검토합니다. `docs/phase/phase{n}.md` 생성 후 sprint-planner로 핸드오프합니다.
 
 ### 3. sprint-planner (Opus)
@@ -147,7 +147,7 @@ ROADMAP.md를 분석하고 writing-plans 스킬을 참조하여 실행 가능한
 
 ### 7. hotfix-close (Sonnet)
 **트리거**: 핫픽스 구현 완료 후
-sprint-close의 경량 버전. ROADMAP 업데이트 없이 `main` 브랜치로 PR을 생성하고, 머지 후 develop 역머지를 안내합니다.
+sprint-close의 경량 버전. ROADMAP 업데이트 없이 `main` 브랜치로 PR을 생성하고, 머지 후 develop 역머지를 안내합니다. Medium/High 이슈 발견 시 `docs/risk-register/`에 기록합니다.
 
 ---
 
