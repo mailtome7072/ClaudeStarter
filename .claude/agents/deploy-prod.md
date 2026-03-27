@@ -57,6 +57,8 @@ git diff main...develop --stat  # develop과 main 차이 요약
 
 ### 2단계: PR 생성
 
+> **버전 먼저 결정**: PR 제목에 버전이 필요하므로, 3단계(CHANGELOG 버전 전환)에서 버전 번호를 먼저 결정한 후 PR을 생성한다. 또는 PR 제목을 `"release: 프로덕션 배포 (버전 미정)"`으로 작성하고 3단계 완료 후 제목을 수정한다.
+
 `develop` → `main` PR을 생성합니다.
 
 ```bash
@@ -92,7 +94,10 @@ EOF
 
 `CHANGELOG.md`의 `[Unreleased]` 섹션을 배포 버전으로 전환합니다.
 
-1. 배포 버전 번호를 결정합니다. (`strategy/risk-management.md` Semantic Versioning 기준 참조)
+1. 배포 버전 번호를 결정합니다 (`strategy/risk-management.md` Semantic Versioning 기준 참조):
+   - **Major** (x.0.0): 하위 호환 깨지는 API 변경, 인증 방식 교체, DB 마이그레이션 필수
+   - **Minor** (x.y.0): 하위 호환 유지하는 새 기능 추가, 새 API 엔드포인트
+   - **Patch** (x.y.z): 버그 수정, 핫픽스, 비기능 개선
 2. `[Unreleased]` → `[x.y.z] - YYYY-MM-DD` 로 교체합니다.
 3. 새로운 빈 `[Unreleased]` 섹션을 최상단에 추가합니다.
 
@@ -164,7 +169,7 @@ ssh -i {SSH_KEY_PATH} {USER}@{SERVER_IP} \
 - 프론트엔드 메인 페이지 로딩 확인
 - 로그인 페이지 렌더링 확인
 
-검증 결과를 `DEPLOY.md`의 자동 검증 완료 섹션에 기록합니다.
+검증 결과를 5단계에서 추가한 `DEPLOY.md` 배포 기록 항목에 추가합니다 (새 섹션이 아닌 기존 항목 업데이트).
 수동 필요 항목: `docs/dev-process.md` 섹션 5 수동 컬럼 참조
 
 **Notion 릴리즈 노트 업데이트**: 사용자에게 안내합니다 (`docs/dev-process.md` 섹션 8.5 기준).

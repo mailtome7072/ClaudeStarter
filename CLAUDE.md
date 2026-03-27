@@ -195,7 +195,7 @@ rules/ 파일은 조건에 따라 자동 로드됩니다. skills/는 에이전�
   - karpathy-guidelines skill을 준수한다.
   - 3스프린트 이상의 대규모 기능은 sprint-planner 이전에 phase-planner agent로 Phase 설계를 먼저 수행한다.
   - sprint-planner agent가 계획 수립 작업을 수행하도록 한다.
-  - 계획 확인 후 `/sprint-dev {n}` 커맨드로 구현 단계에 진입한다. (브랜치 자동 생성, worktree 사용 금지)
+  - 계획 확인 후 `/sprint-dev {n}` 커맨드로 구현 단계에 진입한다. (브랜치 자동 생성)
   - 스프린트 구현 완료 후 **두 단계로** 마무리한다:
     1. sprint-close agent: 문서화 + PR 생성
     2. sprint-review agent: 코드 리뷰 + 자동 검증 + 회고
@@ -203,7 +203,7 @@ rules/ 파일은 조건에 따라 자동 로드됩니다. skills/는 에이전�
 
 4. hotfix 개발이 plan 모드로 진행될 때는 다음을 꼭 준수한다.
   - karpathy-guidelines skill을 준수한다.
-  - `main` 기반으로 `hotfix/{설명}` 브랜치를 생성한다. (worktree 사용하지 말아주세요)
+  - `main` 기반으로 `hotfix/{설명}` 브랜치를 생성한다.
   - CI/배포 상세 절차는 위 CI/CD 정책 > Hotfix 브랜치를 참조한다.
   - 배포 후 실서버 검증이 필요하면 deploy-prod agent의 5단계(실서버 자동 검증)를 참조한다.
 

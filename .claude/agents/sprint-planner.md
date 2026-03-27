@@ -48,6 +48,7 @@ memory: project
 (`strategy/risk-management.md` 산출물 형식 준수)
 
 - 식별된 리스크가 없으면 이 단계는 생략합니다.
+- 해당 날짜 파일(`docs/risk-register/YYYY-MM-DD.md`)이 이미 존재하면 **덮어쓰지 않고 추가(append)** 합니다.
 
 ```markdown
 | ID | 설명 | 영향도 | 출처 | 대응 계획 |

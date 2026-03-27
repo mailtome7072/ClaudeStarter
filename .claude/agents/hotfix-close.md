@@ -47,6 +47,7 @@ color: red
 
 - **Critical 이슈**: 즉시 사용자에게 보고하고 수정 여부를 확인합니다. (배포 차단)
 - **High 이슈**: 사용자에게 보고하고 배포 계속 여부를 확인합니다.
+- **Medium/High 이슈**: `docs/risk-register/YYYY-MM-DD.md`에 기록합니다. 해당 날짜 파일이 있으면 append, 없으면 신규 생성합니다.
 - **Medium/Low 이슈**: DEPLOY.md에 기록하고 배포는 진행합니다.
 
 ### 4단계: 타겟 검증

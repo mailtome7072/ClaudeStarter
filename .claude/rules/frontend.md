@@ -28,7 +28,7 @@ globs: ["app/frontend/**/*.ts", "app/frontend/**/*.tsx", "app/frontend/**/*.css"
 
 ## 코드 리뷰 우선 체크 항목
 
-상세 체크리스트: `.claude/skills/code-review.md` 참조
+상세 체크리스트: `.claude/skills/code-review.md` — **보안**, **코드 품질**, **패턴 준수** 섹션 우선 확인
 
 - **Critical**: XSS (dangerouslySetInnerHTML, 사용자 입력 직접 렌더링), 민감 정보 노출
 - **High**: TypeScript any 남용, API 직접 호출 패턴

@@ -44,7 +44,8 @@ project-root/                    # 프로젝트 루트(Root) 폴더
 │   │   └── agent-memory/        # 에이전트 영구 메모리 (버전 관리됨, 팀 공유)
 │   │       ├── sprint-planner/
 │   │       ├── prd-to-roadmap/
-│   │       └── phase-planner/
+│   │       ├── phase-planner/
+│   │       └── deploy-prod/
 │   ├── commands/
 │   │   ├── sprint-dev.md        # /sprint-dev 슬래시 커맨드 (구현 진입)
 │   │   ├── restart.md           # /restart 슬래시 커맨드

@@ -27,7 +27,7 @@ globs: ["app/backend/**/*.py", "app/backend/requirements*.txt", "app/backend/**/
 
 ## 코드 리뷰 우선 체크 항목
 
-상세 체크리스트: `.claude/skills/code-review.md` 참조
+상세 체크리스트: `.claude/skills/code-review.md` — **보안**, **성능**, **테스트** 섹션 우선 확인
 
 - **Critical**: SQL 인젝션, 하드코딩된 시크릿, 인증/인가 누락
 - **High**: N+1 쿼리, 페이지네이션 누락, 예외 미처리

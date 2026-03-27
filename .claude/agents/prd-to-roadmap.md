@@ -140,9 +140,11 @@ ROADMAP.md 생성 완료 후 내용을 검토하고, 아래 프롬프트를 입�
 
 > "ROADMAP 검토했어. sprint 1 계획 세워줘."
 
-**대규모 기능(3스프린트 이상)**이 포함된 경우 sprint-planner 이전에 phase-planner 에이전트를 먼저 실행하세요:
+**대규모 기능(3스프린트 이상)**이 ROADMAP에 포함된 경우, sprint-planner 이전에 phase-planner 에이전트로 Phase 설계를 먼저 수행하세요:
 
 > "[기능명] Phase 설계해줘." → `phase-planner` 에이전트 → Phase 문서 완성 후 sprint-planner
+
+판단 기준: **단일 기능이 3스프린트 이상** 예상되거나, **여러 모듈에 걸친 아키텍처 결정**이 필요한 경우 phase-planner를 사용합니다. 그 외(1~2스프린트 규모)는 sprint-planner를 바로 실행하세요.
 
 ## 주의사항
 

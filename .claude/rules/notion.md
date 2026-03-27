@@ -21,8 +21,9 @@ description: Notion/노션 관련 작업 시 자동 로드. Notion MCP 사용 �
 
 ## Notion 페이지 ID 매핑
 
-> Notion 연동 시 이 파일(`.claude/rules/notion.md`)을 직접 편집하여 아래 테이블에 실제 페이지 ID를 입력하세요.
-> 페이지 ID는 Notion 페이지 URL에서 확인할 수 있습니다: `https://notion.so/{페이지ID}`
+> **초기 설정 방법**: Notion 연동을 시작할 때 이 파일(`.claude/rules/notion.md`)을 직접 열어 아래 테이블의 `(입력 필요)` 값을 실제 페이지 ID로 교체하세요.
+> 페이지 ID는 Notion 페이지 URL 마지막 부분입니다: `https://notion.so/{워크스페이스명}/{페이지ID}`
+> `/setup-project` 슬래시 커맨드는 이 파일을 자동 치환하지 않으므로 수동으로 편집해야 합니다.
 
 | 용도 | 페이지 ID |
 |------|----------|
