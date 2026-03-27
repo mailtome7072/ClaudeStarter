@@ -42,7 +42,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ### 초기 환경 설정
 
 > **신규 클론 후 필수**: `ARCHITECTURE.md`의 5개 변수(`project_name`, `github_org` 등)를 채운 뒤 `/setup-project` 실행.
-> (미실행 시 `deploy.yml`, `CLAUDE.md`의 저장소 URL이 플레이스홀더 상태로 남음)
+> (미실행 시 `CLAUDE.md`, `PRD.md`의 플레이스홀더가 남음. `deploy.yml`은 `github.repository` 내장 변수를 사용하므로 추가 설정 불필요)
 
 ```bash
 ./SETUP.sh           # Node.js 확인, pnpm 설치, Python venv 생성, .env 복사

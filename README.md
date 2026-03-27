@@ -83,6 +83,7 @@ project-root/                    # 프로젝트 루트(Root) 폴더
 ├── docs/                        # 프로젝트 실행 기록 및 산출물 폴더
 │   ├── ci-policy.md             # CI/CD 정책 문서 (pnpm 설치 및 실행 규칙 포함)
 │   ├── prompt-guide.md          # 작업 경로 선택 가이드 (경로별 프롬프트 예시)
+│   ├── EXAMPLE-prd.md           # PRD 작성 완성형 예시 (TaskFlow 가상 프로젝트)
 │   ├── code-review-checklist.md # 코드 리뷰 체크리스트
 │   ├── risk-register/           # 프로젝트별 리스크 이력 저장 (폴더)
 │   ├── phase/                   # Phase 설계 기록 — phase-planner agent가 생성 (폴더)
@@ -240,7 +241,7 @@ git push -u origin main
 ### 1단계: 프로젝트 변수 설정 (/setup-project)
 
 > GitHub 저장소 연결이 완료되면, 프로젝트 식별 정보를 한 번에 설정합니다.
-> `ARCHITECTURE.md`를 열어 프로젝트 변수를 채운 뒤 `/setup-project`를 실행하면 `README.md`, `CLAUDE.md`, `deploy.yml`, `PRD.md`의 플레이스홀더가 일괄 치환됩니다.
+> `ARCHITECTURE.md`를 열어 프로젝트 변수를 채운 뒤 `/setup-project`를 실행하면 `README.md`, `CLAUDE.md`, `PRD.md`, `docs/ci-policy.md`의 플레이스홀더가 일괄 치환됩니다. (`deploy.yml`은 `github.repository` 내장 변수를 사용하므로 치환 불필요)
 
 - ⬜ `ARCHITECTURE.md` — **프로젝트 변수** 테이블의 5개 값 입력
   - `project_name`: 프로젝트 이름
@@ -248,7 +249,7 @@ git push -u origin main
   - `github_org`: GitHub 조직 또는 계정명
   - `github_repo`: GitHub 저장소명
   - `decision_date`: PRD 작성 결정일 (예: 2026-03-24)
-- ⬜ Claude Code 실행 → `/setup-project` → 4개 파일 플레이스홀더 일괄 치환 확인
+- ⬜ Claude Code 실행 → `/setup-project` → `README.md`, `CLAUDE.md`, `PRD.md`, `docs/ci-policy.md` 플레이스홀더 일괄 치환 확인
 - ⬜ `./SETUP.sh` 실행 — 개발 환경 초기화 (pnpm, Python venv, .env 생성)
 
 ---
@@ -282,7 +283,6 @@ git push -u origin main
 - ⬜ `.env` — SETUP.sh가 생성한 `.env` 파일에 실제 값 입력 (DB 비밀번호, API 키 등)
 - ⬜ GitHub Secrets 설정: `LIGHTSAIL_HOST`, `LIGHTSAIL_USER`, `LIGHTSAIL_SSH_KEY` (GHCR 인증은 `GITHUB_TOKEN` 자동 제공 — 별도 PAT 불필요)
   > 앱 레벨 시크릿(`POSTGRES_PASSWORD`, `JWT_SECRET`, `SECRET_KEY`, `NEXT_PUBLIC_API_URL`) 전체 목록: `docs/ci-policy.md` 참조
-- ⬜ `.github/workflows/deploy.yml` — 배포 대상 서버 IP/도메인 설정
 - ⬜ `docs/ci-policy.md` — 프로젝트 환경에 맞는 CI 정책 세부 내용 (브랜치명, 테스트 범위 등) 기입
 - ⬜ `docs/dev-process.md` 섹션 6.3 — 실서버 SSH 접속 정보 기입 (호스팅 미정이면 생략)
 - ⬜ Docker 파일 생성 (CI/CD 실행에 필수 — 아래 ci.yml 활성화의 전제조건):
