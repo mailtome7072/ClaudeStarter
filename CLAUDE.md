@@ -166,7 +166,7 @@ rules/ 파일은 조건에 따라 자동 로드됩니다. skills/는 에이전�
 
 ### Hotfix 브랜치
 > Hotfix 추천 기준 SSOT: [`docs/dev-process.md`](docs/dev-process.md) 섹션 2
-> 요건: 파일 3개 이하, 코드 50줄 이하, DB 변경 없음, 새 의존성 없음
+> 요건: 파일 3개 이하, 변경된 코드 50줄 이하 (diff 기준), DB 변경 없음, 새 의존성 없음
 
 - `main` 기반으로 `hotfix/{설명}` 브랜치를 생성한다.
 - sprint-planner agent는 사용하지 않는다.
@@ -184,7 +184,7 @@ rules/ 파일은 조건에 따라 자동 로드됩니다. skills/는 에이전�
 
 1. **plan 모드에서 수정사항을 받으면 반드시 Hotfix vs Sprint 의사결정을 먼저 수행한다.**
   - 수정사항의 긴급도, 변경 범위, DB 변경 여부, 의존성 추가 여부를 분석.
-  - 기준 SSOT: `docs/dev-process.md` 섹션 2. Sprint 추천 기준 요약: 새 기능·여러 모듈·DB 변경·새 의존성·파일 4개 이상·코드 50줄 초과 중 하나라도 해당 시.
+  - 기준 SSOT: `docs/dev-process.md` 섹션 2. Sprint 추천 기준 요약: 새 기능·여러 모듈·DB 변경·새 의존성·파일 4개 이상·변경된 코드 50줄 초과(diff 기준) 중 하나라도 해당 시.
   - 사용자의 최종 결정을 받은 후 해당 프로세스를 따른다.
 
 2. sprint 관련 문서 구조:
