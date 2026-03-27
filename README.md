@@ -59,7 +59,8 @@ project-root/                    # 프로젝트 루트(Root) 폴더
 │   │   ├── writing-plans.md        # 계획 작성 지침
 │   │   ├── code-review.md          # 코드 리뷰 체크리스트
 │   │   ├── test-checklist.md       # 검증 매트릭스 (Sprint/Hotfix/deploy-prod)
-│   │   └── retrospective.md        # 스프린트 회고 작성 지침
+│   │   ├── retrospective.md        # 스프린트 회고 작성 지침
+│   │   └── simplify.md             # Task 완료 후 코드 단순화 (sprint-dev 자동 실행)
 │   └── settings.json            # Claude 권한 설정
 │
 ├── .github/
@@ -180,7 +181,7 @@ sprint-close의 경량 버전. ROADMAP 업데이트 없이 `main` 브랜치로 P
 |--------|------|------|
 | `/init` | Claude Code 내장 | 코드베이스 분석 후 CLAUDE.md 검토·갱신 — 첫 실행 시 및 프로젝트 구조 변경 후 사용 |
 | `/setup-project` | 프로젝트 커스텀 | ARCHITECTURE.md 변수 → README.md, CLAUDE.md, deploy.yml, PRD.md 일괄 치환 |
-| `/sprint-dev [n]` | 프로젝트 커스텀 | sprint{n}.md 기반 구현 오케스트레이터 — 브랜치 생성, 현황 파악, 가이드라인 주입 |
+| `/sprint-dev [n]` | 프로젝트 커스텀 | sprint{n}.md 기반 구현 오케스트레이터 — 브랜치 생성, 현황 파악, 가이드라인 주입 (**사용자가 직접 입력하는 커맨드** — 에이전트가 대신 호출하지 않음) |
 | `/restart` | 프로젝트 커스텀 | Docker Compose 서비스 재시작 |
 
 ## 문서 참고 체계

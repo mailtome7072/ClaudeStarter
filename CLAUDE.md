@@ -85,7 +85,7 @@ docker compose -f docker-compose.prod.yml up   # 프로덕션 설정으로 실�
 ## 저장소
 - **원격 저장소**: https://github.com/${github_org}/${github_repo}.git _(⚠️ `/setup-project` 실행 후 실제 URL로 치환됨)_
 - **브랜치 전략**: strategy/branch-strategy.md 참고
-- **문서 저장 위치**: docs/ 하위 폴더 (sprint, test-reports, deploy-history 등) — 구조 상세는 `docs/README.md` 참조
+- **문서 저장 위치**: docs/ 하위 폴더 (sprint, test-reports, deploy-history 등) — 구조 상세는 `strategy/documentation.md` 참조
 
 ## 슬래시 커맨드
 
