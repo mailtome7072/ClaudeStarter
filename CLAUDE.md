@@ -92,7 +92,7 @@ docker compose -f docker-compose.prod.yml up   # 프로덕션 설정으로 실�
 | 커맨드 | 구분 | 설명 |
 |--------|------|------|
 | `/setup-project` | 프로젝트 커스텀 | `ARCHITECTURE.md` 변수 → `README.md`, `CLAUDE.md`, `deploy.yml`, `PRD.md` 플레이스홀더 일괄 치환 |
-| `/sprint-dev [n]` | 프로젝트 커스텀 | `sprint{n}.md` 기반 구현 오케스트레이터 — 브랜치 생성, 현황 파악, 가이드라인 주입 |
+| `/sprint-dev [n]` | 프로젝트 커스텀 | `sprint{n}.md` 기반 구현 오케스트레이터 — 브랜치 생성, 현황 파악, 가이드라인 주입 (**사용자가 직접 입력하는 커맨드** — 에이전트가 대신 호출하지 않음) |
 | `/restart` | 프로젝트 커스텀 | Docker Compose 서비스 재시작 |
 
 ## 조건부 자동 로드 규칙 (`.claude/rules/`)
@@ -222,6 +222,8 @@ rules/ 파일은 조건에 따라 자동 로드됩니다. skills/는 에이전�
 - **잘못된 브랜치에서 작업 시작** (sprint → develop 기반 재생성 등): `docs/dev-process.md` 섹션 9.4
 
 ## 워크플로우 지침
+
+> **어떤 에이전트/커맨드를 써야 할지 모르겠다면** `docs/prompt-guide.md`를 참조한다. 작업 유형별(새 기능, 긴급 패치, 배포 등) 경로와 핵심 프롬프트 예시가 정리되어 있다.
 
 각 워크플로우별 상세 포맷은 `strategy/` 하위 문서를 참조한다.
 
