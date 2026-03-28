@@ -32,6 +32,8 @@ memory: project
 
 ### 3단계: ROADMAP.md 생성
 
+> 기존 `ROADMAP.md`가 있더라도 전체를 새로 생성합니다. 기존 파일의 TODO 플레이스홀더·빈 칸은 모두 PRD 분석 결과로 채웁니다. 기존 파일에서 이미 확정된 스프린트 번호·완료 기록이 있으면 유지합니다.
+
 다음 구조로 ROADMAP.md를 작성합니다:
 
 ```markdown

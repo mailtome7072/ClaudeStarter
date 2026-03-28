@@ -26,6 +26,7 @@ color: red
 - 현재 브랜치가 `hotfix/*` 형식인지 확인합니다.
 - `git diff main...HEAD --name-only`로 변경된 파일 목록을 확인합니다.
 - 변경 범위(파일 수, 코드 줄 수)를 점검하고 hotfix 기준(파일 3개 이하, 코드 50줄 이하)을 충족하는지 확인합니다.
+  - 코드 줄 수 계산: `git diff main...HEAD` 추가(+)·삭제(-) 라인 합산 기준
 - `DEPLOY.md`를 읽어 기존 미완료 항목을 파악합니다.
 
 ### 2단계: PR 생성
@@ -68,6 +69,8 @@ color: red
 - Flaky 테스트: `⬜ Flaky 테스트 발견: {테스트명}` 기록 후 배포 차단 해제
 
 ### 5단계: DEPLOY.md 업데이트 (아카이빙)
+
+> 이 시점의 "기존 완료 기록"은 이전 sprint-close 또는 deploy-prod가 DEPLOY.md에 남긴 기록을 포함할 수 있습니다. 이미 docs/deploy-history/로 이동된 항목은 중복 이동하지 않고, DEPLOY.md에 현재 남아있는 기록만 이동합니다.
 
 1. `DEPLOY.md`의 기존 완료 기록을 `docs/deploy-history/YYYY-MM-DD.md`로 이동합니다.
    - 해당 날짜 파일이 이미 존재하면 파일 상단에 추가합니다.

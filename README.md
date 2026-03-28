@@ -128,6 +128,8 @@ PRD(제품 요구사항 문서)를 분석하여 Agile/스크럼 방법론에 기
 **트리거**: 3스프린트 이상의 대규모 기능 또는 여러 모듈에 걸친 아키텍처 결정이 필요한 경우 (sprint-planner 이전에 사용)
 대규모 기능을 독립 배포 가능한 Phase 단위로 분할하고, 보안·성능·UX·인프라 관점에서 설계를 검토합니다. `docs/phase/phase{n}.md` 생성 후 sprint-planner로 핸드오프합니다.
 
+> **판단 기준**: 단일 기능이 3스프린트 이상이거나, DB·API·UI를 동시에 새로 설계해야 하는 경우. 1~2스프린트 규모는 sprint-planner를 바로 사용.
+
 ### 3. sprint-planner (Opus)
 **트리거**: 새 스프린트 계획 수립 시
 ROADMAP.md를 분석하고 writing-plans 스킬을 참조하여 실행 가능한 스프린트 계획을 수립합니다. 리스크 식별 시 `docs/risk-register/`에 기록합니다.
@@ -181,7 +183,7 @@ sprint-close의 경량 버전. ROADMAP 업데이트 없이 `main` 브랜치로 P
 ```
 자세한 내용은 `docs/dev-process.md` 참조.
 
-> **에이전트 메모리**: `.claude/agents/agent-memory/` 디렉토리의 `MEMORY.md` 파일들은 에이전트가 세션 간 지식을 축적하는 데 사용됩니다. 이 파일들은 버전 관리되므로 팀 전체가 공유합니다.
+> **에이전트 메모리**: `.claude/agents/agent-memory/` 디렉토리의 `MEMORY.md` 파일들은 에이전트가 세션 간 지식을 축적하는 데 사용됩니다. 초기에는 비어있으며, 각 에이전트 첫 실행 후 자동으로 채워집니다. 이 파일들은 버전 관리되므로 팀 전체가 공유합니다.
 
 ---
 
@@ -205,6 +207,19 @@ CLAUDE.md (AI 협업 지시 — 빌드/테스트 명령어, 워크플로우 지�
       └→ docs/ci-policy.md (CI/CD 정책)
       └→ DEPLOY.md (배포 후 수동 작업)
 ```
+
+**strategy/ 파일별 주요 참조 에이전트**
+
+| strategy 파일 | 주로 참조하는 에이전트/스킬 |
+|--------------|--------------------------|
+| `planning.md` | sprint-planner, writing-plans 스킬 |
+| `branch-strategy.md` | sprint-workflow 규칙 (전체 에이전트 공통) |
+| `code-review.md` | sprint-review, hotfix-close (code-review 스킬 기준) |
+| `testing.md` | sprint-review, hotfix-close (test-checklist 스킬 기준) |
+| `deployment.md` | deploy-prod |
+| `risk-management.md` | sprint-planner (risk-register), deploy-prod (버전 전략) |
+| `documentation.md` | sprint-close (문서화 기준) |
+| `retrospectives.md` | sprint-review (retrospective 스킬 기준) |
 
 ---
 

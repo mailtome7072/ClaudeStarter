@@ -11,8 +11,7 @@
 
 ### 2. 스프린트 번호 결정
 - `ROADMAP.md`의 스프린트 목록에서 다음 번호를 결정한다. (SSOT)
-- `.claude/agents/agent-memory/sprint-planner/MEMORY.md`의 현황과 교차 확인하여 불일치 시 ROADMAP.md를 우선한다.
-- MEMORY.md가 비어있거나 없으면 ROADMAP.md만 사용한다.
+- `.claude/agents/agent-memory/sprint-planner/MEMORY.md`는 교차 검증용으로만 참조한다. 비어있거나 없으면 ROADMAP.md만 사용한다. (SSOT: ROADMAP.md)
 
 ### 3. 문서 작성 형식
 

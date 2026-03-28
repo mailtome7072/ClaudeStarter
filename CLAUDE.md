@@ -174,6 +174,8 @@ rules/ 파일은 조건에 따라 자동 로드됩니다. skills/는 에이전�
 - 구현 완료 후 hotfix-close agent를 사용하여 마무리한다 (PR to main, 경량 검증, `DEPLOY.md` 업데이트, develop 역머지 안내).
   > `DEPLOY.md`: 배포마다 리셋되는 수동 검증 체크리스트 — 완료 기록은 `docs/deploy-history/`에 아카이브.
 - 프로덕션 배포는 main merge 시 GitHub Actions가 자동 수행한다.
+- main merge 완료 후 `develop`에 역머지 필수 (hotfix 코드가 develop에 반영되지 않으면 다음 스프린트에서 충돌 발생):
+  > "main merge 완료됐어. develop 역머지 해줘."
 - 📎 검증 매트릭스: `docs/dev-process.md` 섹션 5 (Hotfix 컬럼) / 롤백: 섹션 6.4
 
 ## Bash 명령 실행 규칙

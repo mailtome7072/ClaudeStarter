@@ -71,6 +71,11 @@
 
 참고: .github/workflows/deploy.yml은 github.repository 내장 변수를 사용하므로 치환 불필요합니다.
 
+🔍 치환 결과 확인 (선택):
+  각 파일에서 아래 명령으로 잔류 플레이스홀더를 검색하세요:
+  grep -r '\${github_org}\|${github_repo}\|${project_name}\|${decision_date}' README.md CLAUDE.md PRD.md docs/ci-policy.md docker-compose.prod.yml
+  결과가 없으면 치환이 정상 완료된 것입니다.
+
 ⚠️  다음 항목은 수동 설정이 필요합니다:
   - GitHub Secrets: LIGHTSAIL_HOST, LIGHTSAIL_USER, LIGHTSAIL_SSH_KEY (GHCR 인증은 GITHUB_TOKEN 자동 제공)
     앱 시크릿(POSTGRES_PASSWORD, JWT_SECRET 등) 전체 목록: docs/ci-policy.md 참조
