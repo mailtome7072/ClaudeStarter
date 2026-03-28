@@ -13,15 +13,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 이 저장소는 **Claude Code 협업 스타터 템플릿**이다. 실제 앱 코드는 스프린트 진행 중에 추가된다.
 
 **핵심 흐름**: PRD.md → ROADMAP.md → sprint{n} 브랜치 → develop PR → main 배포
-**에이전트 역할**:
-- `prd-to-roadmap` (Opus): PRD → ROADMAP.md 생성
-- `phase-planner` (Opus): 3스프린트+ 대규모 기능 Phase 설계 — sprint-planner 이전 선택적 사용
-- `sprint-planner` (Opus): ROADMAP 기반 스프린트 계획 수립
-- `/sprint-dev [n]`: 구현 단계 오케스트레이터 (브랜치 생성, 현황 파악)
-- `sprint-close` (Sonnet): 문서화 + PR 생성 (ROADMAP, CHANGELOG, DEPLOY.md)
-- `sprint-review` (Sonnet): 코드 리뷰 + 자동 검증 + 회고 — sprint-close 완료 후 실행
-- `deploy-prod` (Sonnet): develop → main 프로덕션 배포
-- `hotfix-close` (Sonnet): 긴급패치 마무리
+**에이전트 역할** (상세는 `ARCHITECTURE.md` 참조):
+- Opus 계열: `prd-to-roadmap`, `phase-planner`, `sprint-planner` — 계획/설계
+- Sonnet 계열: `sprint-close`, `sprint-review`, `deploy-prod`, `hotfix-close` — 실행/검증
+- 슬래시 커맨드: `/sprint-dev [n]` — 구현 단계 오케스트레이터
 
 > **에이전트 메모리**: `.claude/agents/agent-memory/`는 에이전트별 서브디렉토리로 구성된다.
 > ```
@@ -33,21 +28,20 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 > ```
 > 변경 시 반드시 git commit하여 팀 전체와 동기화한다.
 
+## 신규 클론 후 시작 순서
+
+1. `ARCHITECTURE.md`의 5개 변수(`project_name`, `github_org` 등) 채우기
+2. Claude Code에서 `/setup-project` 실행 → `README.md`, `CLAUDE.md`, `PRD.md`, `docs/ci-policy.md` 플레이스홀더 일괄 치환
+3. `./SETUP.sh` 실행 — Node.js 확인, pnpm 설치, Python venv 생성, `.env` 복사
+4. `git checkout -b develop` (최초 1회 — 스프린트 기반 브랜치)
+
+> `deploy.yml`은 `github.repository` 내장 변수를 사용하므로 추가 설정 불필요.
+> 상세 온보딩: `docs/setup-guide.md` 참조
+
 ## 빌드 및 테스트 명령어
 
 ### 사전 요구사항
 - Node.js v20 이상, Python 3.12 이상, Docker Desktop
-- 신규 참여자 온보딩: `docs/setup-guide.md` 참조
-
-### 초기 환경 설정
-
-> **신규 클론 후 필수**: `ARCHITECTURE.md`의 5개 변수(`project_name`, `github_org` 등)를 채운 뒤 `/setup-project` 실행.
-> (미실행 시 `CLAUDE.md`, `PRD.md`의 플레이스홀더가 남음. `deploy.yml`은 `github.repository` 내장 변수를 사용하므로 추가 설정 불필요)
-
-```bash
-./SETUP.sh           # Node.js 확인, pnpm 설치, Python venv 생성, .env 복사
-git checkout -b develop  # 최초 1회: develop 브랜치 생성 (스프린트 기반 브랜치)
-```
 
 ### 프론트엔드 (pnpm)
 
@@ -89,11 +83,11 @@ docker compose -f docker-compose.prod.yml up   # 프로덕션 설정으로 실�
 
 ## 슬래시 커맨드
 
-| 커맨드 | 구분 | 설명 |
-|--------|------|------|
-| `/setup-project` | 프로젝트 커스텀 | `ARCHITECTURE.md` 변수 → `README.md`, `CLAUDE.md`, `PRD.md`, `docs/ci-policy.md` 플레이스홀더 일괄 치환 (`deploy.yml`은 `github.repository` 내장 변수 사용으로 치환 불필요) |
-| `/sprint-dev [n]` | 프로젝트 커스텀 | `sprint{n}.md` 기반 구현 오케스트레이터 — 브랜치 생성, 현황 파악, 가이드라인 주입 (**사용자가 직접 입력하는 커맨드** — 에이전트가 대신 호출하지 않음) |
-| `/restart` | 프로젝트 커스텀 | Docker Compose 서비스 재시작 |
+| 커맨드 | 구분 | 설명 | 정의 파일 |
+|--------|------|------|----------|
+| `/setup-project` | 프로젝트 커스텀 | `ARCHITECTURE.md` 변수 → `README.md`, `CLAUDE.md`, `PRD.md`, `docs/ci-policy.md` 플레이스홀더 일괄 치환 (`deploy.yml`은 `github.repository` 내장 변수 사용으로 치환 불필요) | `.claude/commands/setup-project.md` |
+| `/sprint-dev [n]` | 프로젝트 커스텀 | `sprint{n}.md` 기반 구현 오케스트레이터 — 브랜치 생성, 현황 파악, 가이드라인 주입 (**사용자가 직접 입력하는 커맨드** — 에이전트가 대신 호출하지 않음) | `.claude/commands/sprint-dev.md` |
+| `/restart` | 프로젝트 커스텀 | Docker Compose 서비스 재시작 | `.claude/commands/restart.md` |
 
 ## 조건부 자동 로드 규칙 (`.claude/rules/`)
 
@@ -105,6 +99,8 @@ rules/ 파일은 조건에 따라 자동 로드됩니다. skills/는 에이전�
 | `backend.md` | `app/backend/**/*.py` 등 접근 시 | 백엔드 개발 제약 (테스트, 마이그레이션, 보안) |
 | `frontend.md` | `app/frontend/**/*.ts,tsx` 등 접근 시 | 프론트엔드 개발 제약 (TypeScript, API 추상화, XSS) |
 | `notion.md` | "Notion/노션" 언급 또는 Notion MCP 사용 시 | Notion MCP 사용 규칙, 페이지 ID 매핑 |
+
+> **MCP 서버**: `.mcp.json`에 Notion HTTP MCP(`https://mcp.notion.com/mcp`)가 설정되어 있다. Notion 연동 규칙은 `.claude/rules/notion.md` 참조.
 
 ### 내장 스킬 (`.claude/skills/`)
 
