@@ -32,6 +32,7 @@ project-root/                    # 프로젝트 루트(Root) 폴더
 ├── CLAUDE.md                    # AI 협업 지시 문서
 ├── DEPLOY.md                    # 배포 후 수동 작업 목록
 ├── CHANGELOG.md                 # 버전별 변경 이력 관리
+├── docker-compose.prod.yml      # 프로덕션 Docker Compose (/setup-project로 이미지명 자동 치환)
 ├── .claude/
 │   ├── agents/                  # Claude 에이전트 정의
 │   │   ├── prd-to-roadmap.md    # PRD → ROADMAP 변환 에이전트 (Opus)
@@ -50,6 +51,10 @@ project-root/                    # 프로젝트 루트(Root) 폴더
 │   │   ├── sprint-dev.md        # /sprint-dev 슬래시 커맨드 (구현 진입)
 │   │   ├── restart.md           # /restart 슬래시 커맨드
 │   │   └── setup-project.md     # /setup-project 슬래시 커맨드
+│   ├── hooks/                   # Claude Code 훅 (도구 실행 전후 자동 실행)
+│   │   ├── pretooluse-bash-guard.sh  # Bash 실행 전 위험 명령 6가지 차단
+│   │   ├── stop-doc-checker.sh       # 에이전트 종료 후 문서 누락 자동 감지
+│   │   └── lib/doc-rules.json        # 에이전트별 필수 문서 검증 규칙
 │   ├── rules/                   # 조건부 자동 로드 규칙
 │   │   ├── sprint-workflow.md   # 모든 대화에 자동 적용
 │   │   ├── backend.md           # app/backend/**/*.py 접근 시
@@ -61,8 +66,10 @@ project-root/                    # 프로젝트 루트(Root) 폴더
 │   │   ├── code-review.md          # 코드 리뷰 체크리스트
 │   │   ├── test-checklist.md       # 검증 매트릭스 (Sprint/Hotfix/deploy-prod)
 │   │   ├── retrospective.md        # 스프린트 회고 작성 지침
-│   │   └── simplify.md             # 모든 Task 완료 후 코드 단순화 1회 실행 (sprint-dev 자동 호출)
-│   └── settings.json            # Claude 권한 설정
+│   │   ├── simplify.md             # 모든 Task 완료 후 코드 단순화 1회 실행 (sprint-dev 자동 호출)
+│   │   ├── systematic-debugging.md # 버그·오류 Task 자동 배정 — 5단계 근본 원인 분석
+│   │   └── brainstorming.md        # 설계 대안 비교 Task 자동 배정 — Weighted Matrix → SWOT → ADR
+│   └── settings.json            # Claude 권한·훅 설정
 │
 ├── .github/
 │   ├── workflows/
@@ -85,6 +92,7 @@ project-root/                    # 프로젝트 루트(Root) 폴더
 │   ├── prompt-guide.md          # 작업 경로 선택 가이드 (경로별 프롬프트 예시)
 │   ├── EXAMPLE-prd.md           # PRD 작성 완성형 예시 (TaskFlow 가상 프로젝트)
 │   ├── code-review-checklist.md # 코드 리뷰 체크리스트
+│   ├── arch/                    # ADR(Architecture Decision Records) — brainstorming 스킬이 생성
 │   ├── risk-register/           # 프로젝트별 리스크 이력 저장 (폴더)
 │   ├── phase/                   # Phase 설계 기록 — phase-planner agent가 생성 (폴더)
 │   ├── sprint/                  # 스프린트 계획 기록 (폴더)
@@ -182,7 +190,7 @@ sprint-close의 경량 버전. ROADMAP 업데이트 없이 `main` 브랜치로 P
 | 커맨드 | 구분 | 설명 |
 |--------|------|------|
 | `/init` | Claude Code 내장 | 코드베이스 분석 후 CLAUDE.md 검토·갱신 — 첫 실행 시 및 프로젝트 구조 변경 후 사용 |
-| `/setup-project` | 프로젝트 커스텀 | ARCHITECTURE.md 변수 → README.md, CLAUDE.md, deploy.yml, PRD.md 일괄 치환 |
+| `/setup-project` | 프로젝트 커스텀 | ARCHITECTURE.md 변수 → README.md, CLAUDE.md, PRD.md, docs/ci-policy.md, docker-compose.prod.yml 일괄 치환 |
 | `/sprint-dev [n]` | 프로젝트 커스텀 | sprint{n}.md 기반 구현 오케스트레이터 — 브랜치 생성, 현황 파악, 가이드라인 주입 (**사용자가 직접 입력하는 커맨드** — 에이전트가 대신 호출하지 않음) |
 | `/restart` | 프로젝트 커스텀 | Docker Compose 서비스 재시작 |
 
@@ -241,7 +249,7 @@ git push -u origin main
 ### 1단계: 프로젝트 변수 설정 (/setup-project)
 
 > GitHub 저장소 연결이 완료되면, 프로젝트 식별 정보를 한 번에 설정합니다.
-> `ARCHITECTURE.md`를 열어 프로젝트 변수를 채운 뒤 `/setup-project`를 실행하면 `README.md`, `CLAUDE.md`, `PRD.md`, `docs/ci-policy.md`의 플레이스홀더가 일괄 치환됩니다. (`deploy.yml`은 `github.repository` 내장 변수를 사용하므로 치환 불필요)
+> `ARCHITECTURE.md`를 열어 프로젝트 변수를 채운 뒤 `/setup-project`를 실행하면 `README.md`, `CLAUDE.md`, `PRD.md`, `docs/ci-policy.md`, `docker-compose.prod.yml`의 플레이스홀더가 일괄 치환됩니다. (`deploy.yml`은 `github.repository` 내장 변수를 사용하므로 치환 불필요)
 
 - ⬜ `ARCHITECTURE.md` — **프로젝트 변수** 테이블의 5개 값 입력
   - `project_name`: 프로젝트 이름
@@ -289,8 +297,8 @@ git push -u origin main
   - `docker/backend/Dockerfile.prod` — 백엔드 프로덕션 이미지
   - `docker/frontend/Dockerfile.prod` — 프론트엔드 프로덕션 이미지
   - `docker/nginx/Dockerfile` — Nginx 리버스 프록시 이미지
-  - `docker-compose.yml` — 로컬 개발 환경
-  - `docker-compose.prod.yml` — 프로덕션 환경
+  - `docker-compose.yml` — 로컬 개발 환경 (**첫 스프린트에서 앱 코드와 함께 작성** — sprint-planner가 Sprint 1 시 자동 태스크로 포함)
+  - `docker-compose.prod.yml` — 프로덕션 환경 (**템플릿에 포함됨** — `/setup-project` 실행 시 이미지명 자동 치환)
 - ⬜ `.github/workflows/ci.yml` — Docker 빌드 스텝 경로 확인 후 주석 해제 (Docker 파일 생성 후 진행)
 - ⬜ `.github/workflows/ci.yml` — 프론트엔드 빌드·테스트 스텝 주석 해제 (**첫 스프린트에서 프론트엔드 코드 생성 후 진행**)
 
