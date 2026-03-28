@@ -33,6 +33,7 @@
 | `CLAUDE.md` | 원격 저장소 URL(`repo_url`) |
 | `PRD.md` | 작성일 메타데이터(`decision_date`) |
 | `docs/ci-policy.md` | GHCR 이미지명(`ghcr_prefix`) |
+| `docker-compose.prod.yml` | GHCR 이미지명(`github_org`, `github_repo`) |
 
 > **`.github/workflows/deploy.yml`은 치환 불필요**: `github.repository` 내장 변수를 사용하므로 클론 직후 바로 동작합니다.
 

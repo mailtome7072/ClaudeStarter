@@ -42,6 +42,10 @@
 - `${github_org}` → 실제 github_org 값
 - `${github_repo}` → 실제 github_repo 값
 
+**docker-compose.prod.yml**
+- `${github_org}` → 실제 github_org 값
+- `${github_repo}` → 실제 github_repo 값
+
 ### 3단계: 결과 요약 출력
 
 치환 완료 후 다음 형식으로 결과를 출력한다:
@@ -63,6 +67,7 @@
   - CLAUDE.md
   - PRD.md
   - docs/ci-policy.md
+  - docker-compose.prod.yml
 
 참고: .github/workflows/deploy.yml은 github.repository 내장 변수를 사용하므로 치환 불필요합니다.
 

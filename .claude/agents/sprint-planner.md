@@ -25,6 +25,8 @@ memory: project
 - 에이전트 메모리에 ROADMAP의 주요 내용을 기록합니다.
 - 직전 스프린트 회고 문서(`docs/sprint-retrospectives/sprint{n-1}.md`)를 읽고 **액션 아이템**을 이번 스프린트 계획에 반영합니다. 반영된 액션 아이템은 계획 문서에 별도 섹션(`## 이전 회고 반영`)으로 명시합니다.
   - 회고 파일이 없으면 첫 스프린트로 간주하고 이전 회고 반영 단계를 건너뜁니다. (사용자 확인 불필요)
+- **Sprint 1 전용**: 스프린트 번호가 1이고 프로젝트 루트에 `docker-compose.yml`이 없으면, Task Breakdown에 아래 태스크를 자동 포함합니다:
+  - ⬜ `docker-compose.yml` 작성 — backend / frontend / db(PostgreSQL 16) / redis(7-alpine) 서비스 정의, `app/backend/Dockerfile` 및 `app/frontend/Dockerfile` 빌드 컨텍스트 연결
 - `docs/risk-register/`의 최신 파일을 읽고 미해결 리스크를 파악합니다. 이번 스프린트와 관련된 항목은 작업 목록 또는 완료 기준에 리스크 회피 작업으로 반영합니다.
 
 ### 2단계: writing-plans 스킬 참조
