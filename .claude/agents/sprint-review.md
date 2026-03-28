@@ -26,6 +26,36 @@ sprint-review는 **코드 리뷰 + 검증 + 회고**에 집중합니다:
 - `DEPLOY.md`에서 sprint-close가 기록한 PR URL을 확인합니다. (없으면 현재 브랜치 기준으로 진행)
 - `docs/sprint/sprint{n}.md`를 읽어 스프린트 목표와 구현 범위를 확인합니다.
 
+**대형 스프린트 병렬 검토 분기**:
+
+변경 파일 수와 레이어를 확인합니다:
+```bash
+git diff develop...HEAD --name-only | wc -l                    # 전체 파일 수
+git diff develop...HEAD --name-only | grep "^app/backend/"     # 백엔드 변경 여부
+git diff develop...HEAD --name-only | grep "^app/frontend/"    # 프론트엔드 변경 여부
+```
+
+| 조건 | 검토 방식 |
+|------|---------|
+| 변경 파일 15개 미만 **또는** 단일 레이어(BE·FE 중 하나만) | 기존 단일 리뷰 (2단계로 진행) |
+| 변경 파일 **15개 이상** + 백엔드·프론트엔드 **동시 변경** | → **병렬 검토 모드** (아래 절차) |
+
+**병렬 검토 모드 절차** (15+ 파일, BE+FE 동시):
+
+두 서브에이전트를 병렬 실행하여 각 레이어를 독립 검토합니다:
+
+- **백엔드 리뷰 에이전트** (code-review skill 백엔드 섹션 기준):
+  - Critical: SQL 인젝션, 하드코딩 시크릿, 인증/인가 누락
+  - High: N+1 쿼리, 페이지네이션 누락, 예외 미처리
+  - 결과: `docs/test-reports/YYYY-MM-DD-backend.md`
+
+- **프론트엔드 리뷰 에이전트** (code-review skill 프론트엔드 섹션 기준):
+  - Critical: XSS (dangerouslySetInnerHTML, 사용자 입력 직접 렌더링), 민감 정보 노출
+  - High: TypeScript any 남용, API 직접 호출 패턴, 인증 토큰 localStorage 저장
+  - 결과: `docs/test-reports/YYYY-MM-DD-frontend.md`
+
+두 결과를 취합하여 통합 리뷰 보고서(`docs/test-reports/YYYY-MM-DD.md`)를 생성합니다.
+
 ### 2단계: 코드 리뷰
 
 **code-review skill** 체크리스트에 따라 변경 파일 대상으로 코드 리뷰를 수행합니다.

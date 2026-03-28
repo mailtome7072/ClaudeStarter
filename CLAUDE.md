@@ -79,6 +79,21 @@ docker compose -f docker-compose.prod.yml up   # 프로덕션 설정으로 실�
 | `/sprint-dev [n]` | 프로젝트 커스텀 | `sprint{n}.md` 기반 구현 오케스트레이터 — 브랜치 생성, 현황 파악, 가이드라인 주입 (**사용자가 직접 입력하는 커맨드** — 에이전트가 대신 호출하지 않음) | `.claude/commands/sprint-dev.md` |
 | `/restart` | 프로젝트 커스텀 | Docker Compose 서비스 재시작 | `.claude/commands/restart.md` |
 
+## Hooks 시스템 (`.claude/hooks/`)
+
+Claude Code가 도구 실행 전후로 자동으로 실행하는 검증 스크립트입니다.
+
+| Hook | 파일 | 트리거 | 역할 |
+|------|------|--------|------|
+| PreToolUse | `pretooluse-bash-guard.sh` | Bash 도구 실행 전 | 위험 명령 6가지 패턴 차단 |
+| Stop | `stop-doc-checker.sh` | 에이전트 응답 종료 후 | 에이전트별 문서 누락 자동 감지 |
+
+**bash-guard 차단 규칙**: 디렉토리 체이닝(`cd /path &&`) / main·develop 직접 push / force push / `git reset --hard` / 허용되지 않는 브랜치 명명
+**허용 브랜치 패턴**: `sprint{N}`, `sprint{N}-{설명}`, `hotfix/{설명}`
+
+**doc-checker 감지 에이전트**: sprint-planner / sprint-close / sprint-review / hotfix-close / phase-planner / prd-to-roadmap
+규칙 상세: `.claude/hooks/lib/doc-rules.json`
+
 ## 조건부 자동 로드 규칙 (`.claude/rules/`)
 
 rules/ 파일은 조건에 따라 자동 로드됩니다. skills/는 에이전트/사용자가 명시적으로 참조할 때 로드됩니다.

@@ -42,6 +42,29 @@ memory: project
 - **완료 기준 (Definition of Done)**: 스프린트 성공 기준
 - **예상 산출물**: 스프린트 완료 시 결과물
 
+### 3-1단계: Skill Matching (자동 스킬 배정)
+
+Task Breakdown 작성 후, 각 Task에 적합한 스킬을 자동으로 배정합니다.
+**우선순위 순으로 첫 번째 일치 패턴을 적용**합니다:
+
+| 우선순위 | Task 키워드/특성 | 배정 스킬 | 적용 예시 |
+|---------|---------------|---------|---------|
+| 1 | "버그", "오류", "에러", "fix", "debug", 원인 불명 | `systematic-debugging` | 로그인 오류 수정, 결제 버그 fix |
+| 2 | UI 컴포넌트, 페이지, 화면, 디자인, 프론트엔드 구현 | `frontend-design` | 대시보드 UI 구현, 폼 컴포넌트 작성 |
+| 3 | 설계 대안 비교, "A vs B", 방법 선택, 아키텍처 결정 | `brainstorming` | 캐시 전략 선택, 인증 방식 비교 |
+| 4 | 위 해당 없음 | (생략) | 일반 API 구현, DB 마이그레이션 |
+
+**자동 배정 결과 형식** (sprint{n}.md Task 항목에 반영):
+```markdown
+- ⬜ 로그인 버그 수정 · skill: systematic-debugging
+- ⬜ 사용자 대시보드 UI 구현 · skill: frontend-design
+- ⬜ API 엔드포인트 구현
+```
+
+> **전역 자동 적용** (모든 Task — 별도 선언 불필요):
+> - `karpathy-guidelines`: 파일 수정 전 읽기, git diff 확인 원칙
+> - `simplify`: 각 Task 완료 후 자동 실행 (불필요한 추상화·중복 제거)
+
 ### 4단계: 예상 리스크 기록 (risk-register)
 
 3단계 계획 수립에서 식별한 **의존성 및 리스크** 항목 중 영향도 중간 이상인 항목을 `docs/risk-register/YYYY-MM-DD.md`에 기록합니다.
