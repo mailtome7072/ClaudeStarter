@@ -56,6 +56,8 @@ SETUP.sh는 다음을 자동으로 수행합니다:
 
 ### Docker Compose 환경 (전체 스택)
 
+> **사전 조건**: `docker-compose.yml`은 이 템플릿에 포함되지 않습니다. 첫 스프린트에서 백엔드·프론트엔드 앱 코드가 생성될 때 함께 작성하세요. (`app/backend/Dockerfile`, `app/frontend/Dockerfile` 생성 후 서비스 정의 추가)
+
 ```bash
 # Docker Compose로 전체 스택 실행
 docker compose up --build
