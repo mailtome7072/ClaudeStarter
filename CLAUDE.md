@@ -18,16 +18,6 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Sonnet 계열: `sprint-close`, `sprint-review`, `deploy-prod`, `hotfix-close` — 실행/검증
 - 슬래시 커맨드: `/sprint-dev [n]` — 구현 단계 오케스트레이터
 
-> **에이전트 메모리**: `.claude/agents/agent-memory/`는 에이전트별 서브디렉토리로 구성된다.
-> ```
-> .claude/agents/agent-memory/
-> ├── sprint-planner/MEMORY.md    # 스프린트 번호·Velocity 누적
-> ├── prd-to-roadmap/MEMORY.md    # PRD→ROADMAP 변환 이력
-> ├── phase-planner/MEMORY.md     # Phase 설계 이력
-> └── deploy-prod/MEMORY.md       # 배포 이력
-> ```
-> 변경 시 반드시 git commit하여 팀 전체와 동기화한다.
-
 ## 신규 클론 후 시작 순서
 
 1. `ARCHITECTURE.md`의 5개 변수(`project_name`, `github_org` 등) 채우기
@@ -58,7 +48,7 @@ pnpm lint --fix      # 자동 수정 가능한 린트 오류 수정
 
 ### 백엔드 (Python/pytest)
 
-> `app/backend/`에 코드가 생성된 후 사용 가능하다. (첫 스프린트 이후)
+> `app/backend/` 애플리케이션 코드는 첫 스프린트 이후 추가된다. `app/backend/tests/` 디렉토리는 이미 존재한다.
 > 로컬 테스트 실행 전 **PostgreSQL 16**과 **Redis 7**이 필요하다. (`docker compose up`으로 서비스 기동)
 > 필요한 환경변수: `POSTGRES_HOST`, `POSTGRES_PORT`, `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD`, `REDIS_HOST`, `REDIS_PORT`, `JWT_SECRET`, `SECRET_KEY`
 
@@ -166,7 +156,8 @@ rules/ 파일은 조건에 따라 자동 로드됩니다. skills/는 에이전�
 
 - `main` 기반으로 `hotfix/{설명}` 브랜치를 생성한다.
 - sprint-planner agent는 사용하지 않는다.
-- 구현 완료 후 hotfix-close agent를 사용하여 마무리한다 (PR to main, 경량 검증, DEPLOY.md 기록, develop 역머지 안내).
+- 구현 완료 후 hotfix-close agent를 사용하여 마무리한다 (PR to main, 경량 검증, `DEPLOY.md` 업데이트, develop 역머지 안내).
+  > `DEPLOY.md`: 배포마다 리셋되는 수동 검증 체크리스트 — 완료 기록은 `docs/deploy-history/`에 아카이브.
 - 프로덕션 배포는 main merge 시 GitHub Actions가 자동 수행한다.
 - 📎 검증 매트릭스: `docs/dev-process.md` 섹션 5 (Hotfix 컬럼) / 롤백: 섹션 6.4
 
@@ -179,8 +170,7 @@ rules/ 파일은 조건에 따라 자동 로드됩니다. skills/는 에이전�
 ## 개발시 유의해야할 사항
 
 1. **plan 모드에서 수정사항을 받으면 반드시 Hotfix vs Sprint 의사결정을 먼저 수행한다.**
-  - 수정사항의 긴급도, 변경 범위, DB 변경 여부, 의존성 추가 여부를 분석.
-  - 기준 SSOT: `docs/dev-process.md` 섹션 2. Sprint 추천 기준 요약: 새 기능·여러 모듈·DB 변경·새 의존성·파일 4개 이상·변경된 코드 50줄 초과(diff 기준) 중 하나라도 해당 시.
+  - 판단 기준: `docs/dev-process.md` 섹션 2 (SSOT) / `.claude/rules/sprint-workflow.md` (요약)
   - 사용자의 최종 결정을 받은 후 해당 프로세스를 따른다.
 
 2. sprint 관련 문서 구조:
@@ -230,12 +220,9 @@ rules/ 파일은 조건에 따라 자동 로드됩니다. skills/는 에이전�
 | Phase Planning | ROADMAP.md | docs/phase/phase{n}.md | phase-planner agent |
 | Sprint Planning | ROADMAP.md | docs/sprint/sprint{n}.md | strategy/planning.md |
 | Sprint Review | sprint{n}.md + git log | docs/test-reports/, docs/sprint-retrospectives/ | .claude/skills/code-review.md, test-checklist.md, retrospective.md |
-| Sprint Retrospective | - | docs/sprint-retrospectives/ | strategy/retrospectives.md / .claude/skills/retrospective.md |
-| Test Report | - | docs/test-reports/ | strategy/testing.md / .claude/skills/test-checklist.md |
-| Risk Register | - | docs/risk-register/ | strategy/risk-management.md |
-| Deployment Log | - | docs/deploy-history/ | strategy/deployment.md |
-| Code Review | - | docs/code-review-checklist.md | strategy/code-review.md / .claude/skills/code-review.md |
 | CHANGELOG | - | CHANGELOG.md | - |
+
+> 기타 산출물(Test Report, Risk Register, Deployment Log, Code Review) 포맷은 `docs/prompt-guide.md` 참조.
 
 **CHANGELOG 버전 표기**: `## [x.y.z] - YYYY-MM-DD` / 카테고리: Added / Changed / Fixed / Removed / 최신 버전은 최상단에 추가
 
