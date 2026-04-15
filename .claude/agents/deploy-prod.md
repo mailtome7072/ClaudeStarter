@@ -34,6 +34,32 @@ color: red
 
 ## 작업 절차
 
+### 0단계: Pre-Deploy Policy Gate — Harness Policy Enforcement
+
+> Harness Engineering 원칙 4: 정책 게이트를 통과하지 않으면 배포를 진행하지 않는다.
+> **참조 스킬**: `.claude/skills/harness-ci-gate.md`
+
+`harness-ci-gate` 스킬을 실행하여 배포 가능 조건을 검증합니다.
+
+**자동 확인 항목 (BLOCK — 하나라도 미충족 시 즉시 배포 중단)**:
+1. CI(GitHub Actions) 통과 여부 — `gh run list --branch develop --limit 3`
+2. 현재 브랜치가 `develop`인지 확인
+3. `.env` 파일이 Git에 포함되지 않았는지 — `git ls-files .env .env.*`
+4. 코드에 하드코딩된 시크릿 없음 — `git diff main...develop -- '*.py' '*.ts'` grep 확인
+5. CHANGELOG.md `[Unreleased]` 섹션 업데이트됨 — `git diff main...develop -- CHANGELOG.md`
+6. DEPLOY.md에서 `✅ sprint-review` 항목 체크됨
+
+**사용자 확인 항목 (CONFIRM — 내용 보고 후 승인 시 진행)**:
+- bandit high severity 이슈 (CI security-scan 잡 결과)
+- risk-register 미해결 Medium/High 이슈 (docs/risk-register/ 최근 파일)
+- ROADMAP.md 해당 스프린트 완료 상태
+
+**정책 위반 처리**:
+- BLOCK 미충족 → 미충족 항목 목록 보고 후 배포 중단
+- CONFIRM 미인지 → 내용 보고 후 사용자 승인 대기
+
+---
+
 ### 1단계: 사전 점검
 
 아래 항목을 순서대로 확인합니다.
@@ -112,69 +138,144 @@ EOF
 - (기존 Unreleased 내용)
 ```
 
-### 4단계: DEPLOY.md 업데이트 (아카이빙)
+### 4단계: DEPLOY.md 아카이빙 (자동)
 
-1. `DEPLOY.md`의 기존 완료 기록(sprint-close가 기록한 Sprint 항목 포함)을 `docs/deploy-history/YYYY-MM-DD.md`로 이동합니다.
-   - 해당 날짜 파일이 이미 존재하면 파일 상단에 추가합니다.
-2. `DEPLOY.md`에 배포 기록을 추가합니다:
+> **에이전트가 자동으로 수행합니다 — 사용자 개입 불필요**
+
+**아카이빙 절차 (에이전트 직접 실행):**
+
+1. `DEPLOY.md`를 읽어 "## 현재 배포 현황" 섹션 아래 실제 기록이 있는지 확인합니다.
+   - 기록이 있으면 (sprint-close/hotfix-close가 작성한 항목 포함):
+     - `docs/deploy-history/YYYY-MM-DD.md` 파일을 확인합니다 (오늘 날짜 기준).
+       - 파일이 없으면 신규 생성 후 기록 이동
+       - 파일이 있으면 파일 상단에 기록 추가
+     - `DEPLOY.md`의 "현재 배포 현황" 섹션 내용을 초기화합니다 (헤더 제외).
+
+2. `DEPLOY.md`에 이번 배포 기록을 추가합니다:
 
 ```markdown
-### 프로덕션 배포 - v{version} ({날짜})
+## YYYY-MM-DD | v{version} | 프로덕션 배포
 
-포함 스프린트: Sprint {N}, {M}
+### 포함 스프린트
+- Sprint {N}: {목표}
+
+### 배포 상태
+- ✅ main merge 완료
+- ✅ GitHub Actions — GHCR 이미지 push + SSH 배포 자동 실행
+
+### CV 1단계 — 기술 검증 (즉시)
+- ⬜ 헬스체크 HTTP 200
+- ⬜ 컨테이너 running
+- ⬜ 에러 로그 없음
+- ⬜ DB 마이그레이션 (head)
+
+### CV 2단계 — 기능 검증 (5분 후)
+- ⬜ 핵심 API 응답 정상
+- ⬜ 주요 기능 동작 확인 (수동)
+
+### CV 3단계 — 안정성 (30분 후, 자동)
+- ⬜ 에러율 증가 없음
+- ⬜ 응답 속도 정상
+- ⬜ 사용자 신고 없음 (확인 필요)
+
 PR: {PR URL}
-
-- ✅ main merge 시 GHCR 이미지 push 자동 실행
-- ✅ 서버 SSH 배포 자동 실행
-
-자동 검증 및 수동 검증 필요 항목은 5단계 실행 후 업데이트합니다.
 ```
 
-### 5단계: 최종 보고
+### 5단계: PR 보고 및 배포 대기
 
 사용자에게 다음을 보고합니다:
 
-1. **PR URL** — merge 후 GitHub Actions가 자동 배포를 시작합니다.
-2. **GitHub Actions 모니터링** — 저장소 Actions 탭에서 진행 상태를 확인하세요.
-3. **6단계 실서버 검증** — GitHub Actions 배포 완료 후 아래 프롬프트를 입력하세요:
-   > "PR merge하고 GitHub Actions 배포 완료됐어. 실서버 검증 시작해줘."
-4. **롤백 방법** (문제 발생 시): `docs/dev-process.md` 섹션 6.4 참조
+1. **PR URL** 및 포함된 변경사항 요약
+2. **다음 행동**: "PR을 merge해주세요. merge 후 **'merge 완료'** 한 마디만 입력하시면 이후 모든 과정(Actions 대기 → CV 검증 → 배포 완료 처리)을 자동으로 진행합니다."
+3. **롤백 방법** (문제 발생 시): `docs/dev-process.md` 섹션 6.4 참조
 
-**수동 항목 완료 안내**: `DEPLOY.md`의 `⬜` 수동 항목을 수행한 뒤 해당 항목을 `✅`로 직접 변경해 주세요.
-모든 수동 항목 완료 후 아래 프롬프트를 입력하면 배포 사이클이 완료 처리됩니다:
+---
 
-> "실서버 수동 검증 완료했어. 배포 완료 처리해줘."
+### 6단계: GitHub Actions 완료 자동 대기 (merge 완료 신호 수신 후)
 
-### 6단계: 실서버 자동 검증 (배포 완료 후)
+> "merge 완료" 신호를 받으면 이 단계를 자동으로 시작합니다.
 
-**test-checklist skill**의 "deploy-prod" 컬럼 기준으로 자동 검증을 수행합니다.
+```bash
+# GitHub Actions 완료까지 자동 대기 (완료 시까지 blocking)
+gh run watch $(gh run list --branch main --json databaseId --jq '.[0].databaseId')
+```
+
+- Actions 성공 → 즉시 7단계(CV 1단계)로 자동 진행
+- Actions 실패 → 실패 로그 보고 후 사용자 판단 요청
+
+### 7단계: 실서버 자동 검증 — CV 1단계 (Actions 완료 직후)
+
+> Harness Engineering 원칙 5: Continuous Verification  
+> **상세 기준**: `docs/harness-engineering/continuous-verification.md`
 
 SSH 접속 정보는 `docs/dev-process.md` 섹션 6.3을 참조하세요.
 
-**자동 검증 실행:**
+**CV 실행 전 사전 확인 — SSH 접속 정보 구성 여부:**
+
+`docs/dev-process.md` 섹션 6.3을 읽어 `{SSH_KEY_PATH}`, `{SERVER_IP}`, `{USER}` 등 플레이스홀더가 실제 값으로 채워졌는지 확인합니다.
+
+- **플레이스홀더 미채움 시** (초기 프로젝트 설정 전):
+  - CV 자동 실행을 건너뜁니다.
+  - DEPLOY.md에 아래 항목을 추가합니다:
+    ```
+    - ⬜ dev-process.md 섹션 6.3 SSH 정보 미구성 — CV 수동 실행 필요
+    ```
+  - 사용자에게 안내: "실서버 자동 검증을 건너뜁니다. `docs/dev-process.md` 섹션 6.3에 SSH 접속 정보를 입력한 후 수동으로 CV를 실행해주세요."
+  - 8단계로 진행합니다.
+
+- **실제 값이 채워진 경우** → 아래 CV 1단계를 자동 실행합니다.
+
+**CV 1단계 자동 실행 (기술 검증 — 즉시):**
 ```bash
-# 1. 헬스체크 (서버 IP는 docs/dev-process.md 섹션 6.3 참조)
-curl -s http://{SERVER_IP}/api/v1/health
+# 1. 헬스체크 — HTTP 200 확인
+curl -s -o /dev/null -w "%{http_code}" http://{SERVER_IP}/api/v1/health
 
-# 2. 컨테이너 상태 확인
+# 2. 컨테이너 상태 확인 — 모든 서비스 running 상태
 ssh -i {SSH_KEY_PATH} {USER}@{SERVER_IP} \
-  "cd {APP_PATH} && sudo docker compose -f docker-compose.prod.yml ps"
+  "docker compose -f /opt/app/docker-compose.prod.yml ps"
 
-# 3. 백엔드 최근 로그 오류 확인
+# 3. 백엔드 에러 로그 확인 — ERROR/TRACEBACK/CRITICAL 없음
 ssh -i {SSH_KEY_PATH} {USER}@{SERVER_IP} \
-  "cd {APP_PATH} && sudo docker compose -f docker-compose.prod.yml logs backend --tail 30 2>&1 | grep -i 'error\|traceback\|critical' || echo 'No errors found'"
+  "docker compose -f /opt/app/docker-compose.prod.yml logs backend --tail 30 2>&1 | grep -i 'error\|traceback\|critical' || echo 'No errors found'"
+
+# 4. DB 마이그레이션 상태 — (head) 상태
+ssh -i {SSH_KEY_PATH} {USER}@{SERVER_IP} \
+  "docker compose -f /opt/app/docker-compose.prod.yml exec backend alembic current 2>&1 || echo 'alembic check skipped'"
 ```
 
-**Playwright 프론트엔드 검증 (MCP 사용):**
-- 프론트엔드 메인 페이지 로딩 확인
-- 로그인 페이지 렌더링 확인
+**CV 1단계 결과 처리:**
+- 모두 통과 → DEPLOY.md CV 1단계 항목 ✅ 업데이트 후 8단계 진행
+- 헬스체크 실패 → "⚠️ 헬스체크 실패 — 즉시 롤백 권장. `docs/dev-process.md` 섹션 6.4 참조"
+- 컨테이너 비정상 → "⚠️ 컨테이너 Exited/Restarting — 즉시 롤백 권장"
+- CRITICAL 에러 → "⚠️ 심각한 에러 발견 — 롤백 여부를 결정해주세요"
 
-검증 결과를 5단계에서 추가한 `DEPLOY.md` 배포 기록 항목에 추가합니다 (새 섹션이 아닌 기존 항목 업데이트).
-수동 필요 항목: `docs/dev-process.md` 섹션 5 수동 컬럼 참조
+**CV 2단계 (기능 검증 — 5분, 사용자 주도):**
+- Playwright 설치된 경우: 핵심 플로우 자동 실행
+- Playwright 미설치: `⬜ 브라우저에서 {SERVER_URL} 접속하여 주요 기능 동작 확인 (수동)`
 
-**Notion 릴리즈 노트 업데이트**: 사용자에게 안내합니다 (`docs/dev-process.md` 섹션 8.5 기준).
+**CV 3단계 자동 예약 (30분 후):**
 
-### sprint-planner MEMORY.md 업데이트
+CV 1단계 통과 즉시 ScheduleWakeup으로 30분 후 안정성 검증을 자동 예약합니다:
+
+```
+ScheduleWakeup(
+    delaySeconds=1800,
+    reason="CV 3단계 자동 검증 — 배포 30분 후 안정성 확인",
+    prompt="CV 3단계 자동 검증을 실행해주세요.
+docs/dev-process.md 섹션 6.3의 서버 접속 정보로 아래를 확인하세요:
+1) 헬스체크 HTTP 200
+2) 최근 30분 에러 로그 없음 (grep ERROR/CRITICAL)
+3) 응답 시간 2초 이내
+모두 정상이면 DEPLOY.md의 CV 3단계 ⬜ 항목을 ✅로 업데이트하고 배포를 최종 완료 처리해주세요.
+사용자 신고 항목은 '자동 확인 불가 — 이상 없으면 ✅로 직접 변경해주세요'로 안내해주세요."
+)
+```
+
+> 30분 후 Claude Code가 자동으로 깨어나 위 검증을 실행합니다. 사용자 개입 불필요.
+
+**Notion 릴리즈 노트 업데이트**: CV 3단계 완료 후 안내합니다 (`docs/dev-process.md` 섹션 8.5 기준).
+
+### 8단계: sprint-planner MEMORY.md 업데이트
 
 `.claude/agents/agent-memory/sprint-planner/MEMORY.md`에 이번 배포에서 발견된 사항을 기록합니다:
 - 배포 과정에서 발생한 이슈 및 해결 방법

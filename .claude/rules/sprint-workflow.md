@@ -35,6 +35,13 @@ description: 스프린트/핫픽스 워크플로우 핵심 규칙. 모든 대화
 
 **Hotfix 브랜치 명명**: `hotfix/{설명}` — 예: `hotfix/fix-login-crash`, `hotfix/db-connection-timeout`, `hotfix/null-pointer-api`
 
+**Hotfix 브랜치 생성** (반드시 `main` 기반):
+```bash
+git checkout main && git pull origin main
+git checkout -b hotfix/{설명}
+```
+> ⚠️ `develop` 기반으로 hotfix 브랜치를 만들면 역머지 시 다음 스프린트와 충돌 발생
+
 **Sprint 조건** (하나라도 해당 시):
 - 새 기능 추가, 여러 모듈 수정, DB 변경, 새 의존성, 파일 4개 이상, 코드 50줄 초과
 

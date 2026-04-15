@@ -14,6 +14,47 @@ sprint{n}.md 계획 문서를 기반으로 구현 단계에 진입합니다. 브
 
 ## 실행 절차
 
+### 0단계: Scope 선언 (Plan First) — Harness Engineering 원칙 1
+
+코드 수정 전 `docs/sprint/sprint{n}/scope.md`를 작성하거나 확인한다.
+
+**신규 세션 (scope.md 없음)**: 아래 템플릿으로 파일을 생성한 후 1단계로 진행.
+
+```markdown
+---
+Sprint: {n}  |  Date: YYYY-MM-DD  |  Session: #1
+---
+
+## 이번 세션에서 수정할 파일
+<!-- 수정 횟수가 [3회 ⚠️]에 도달하면 loop-detection 스킬 즉시 실행 -->
+| 파일 | 수정 횟수 | 비고 |
+|------|---------|------|
+| app/backend/... | [0회] | (수정 목적) |
+| app/frontend/... | [0회] | (수정 목적) |
+
+## 수정하지 않을 파일 (Forbidden Areas 포함)
+- [ ] .github/workflows/ — CI/CD 파이프라인 (hook이 차단)
+- [ ] SETUP.sh — 초기화 스크립트 (hook이 차단)
+- [ ] (기타 scope 외 파일)
+
+## 완료 기준 (이번 세션)
+- [ ] (sprint{n}.md의 완료 기준 중 이번 세션 담당 항목)
+```
+
+**재진입 세션 (scope.md 있음)**: 파일을 읽어 이전 상태를 확인하고 세션 번호를 +1 한 뒤 이어서 진행.
+
+**최근 세션 패턴 검토** (재진입 세션에서 권장):
+`.claude/logs/session-summary.md`가 있으면 읽어 이전 세션의 반복 위반 패턴을 파악합니다.
+- `BLOCK` 이벤트가 많은 파일 → scope 선언 또는 허가 토큰 사전 준비
+- doc-checker 반복 경고 → 해당 문서를 scope.md 완료 기준에 명시
+- `loop-3x` 이벤트 → 해당 파일은 신중히 접근, 사전 설계 강화
+
+**Step-back 프로토콜**: 예상치 못한 구조적 충돌 발견 시 코드 수정 즉시 중단 → scope.md `## 발견된 이슈` 섹션에 기록 → 사용자에게 보고.
+
+**Re-planning 트리거**: 실제 수정 파일이 scope.md 선언 대비 30% 초과 또는 새 의존성/DB 변경 필요 시 → scope.md 업데이트 후 사용자 확인.
+
+---
+
 ### 1단계: 스프린트 번호 결정
 
 `$ARGUMENTS`가 있으면 해당 번호를 사용합니다.
@@ -96,14 +137,22 @@ Sprint {n} 구현 모드 진입
 
 `skill:` 이 없는 Task는 이 단계를 건너뜁니다.
 
-**② Task 완료 후 — simplify 자동 실행 (생략 불가)**
+**② Task 완료 후 — Self-verify + simplify (생략 불가)**
 
-모든 Task 구현 완료 후 `.claude/skills/simplify.md` 스킬을 실행합니다.
+모든 Task 구현 완료 후 아래 순서를 반드시 따릅니다:
 
 ```
-[Task 구현] → [simplify 실행] → [커밋]
+[Task 구현] → [Self-verify] → [simplify 실행] → [커밋]
 ```
 
+**Self-verify** (커밋 전 의무 단계):
+- 변경된 파일 관련 단위 테스트: `pytest app/backend/tests/test_{파일명}.py`
+- 전체 통합 테스트: `pytest app/backend/tests/` (가능한 경우)
+- 린트: `pnpm lint` (프론트엔드 파일 변경 시)
+- Self-verify 실패 → 검증 실패 대응(3회 재시도 원칙) 적용
+
+**simplify** (Self-verify 통과 후):
+`.claude/skills/simplify.md` 스킬을 실행합니다.
 - 불필요한 추상화, 중복 로직, 사용하지 않는 코드를 제거한다.
 - 기능 변경 없이 코드 구조만 단순화한다.
 - simplify 결과를 한 줄로 보고한 뒤 커밋한다.
@@ -119,6 +168,10 @@ Task 구현 중 테스트/린트 실패 발생 시 아래 절차를 따릅니다
    - 시도한 수정 방법 (1차, 2차)
    - 막힌 이유
 
+**루프 상태 전환 조건** — 아래 중 하나 충족 시 → `.claude/skills/loop-detection.md` 스킬 **즉시** 실행:
+- 동일한 오류 메시지로 테스트가 **3회 이상 연속 실패**
+- 동일한 파일을 **3회 이상 반복 수정** (scope.md에 `[3회 ⚠️]` 기록 시)
+
 **CI 파이프라인 실패** (pytest, pnpm test, pnpm lint, Docker 빌드):
 `docs/dev-process.md` 섹션 9.1을 참조하여 로컬에서 원인을 먼저 재현합니다.
 
@@ -128,7 +181,13 @@ Task 구현 중 테스트/린트 실패 발생 시 아래 절차를 따릅니다
 
 ### 완료 신호
 
-구현이 완료되면 sprint-close agent를 사용합니다:
+sprint-close를 실행하기 **전에** 아래 완료 조건을 먼저 확인합니다:
+
+1. `git log develop..HEAD --oneline` — 모든 Task 커밋이 반영되었는지 확인
+2. `docs/sprint/sprint{n}.md`의 완료 기준(Definition of Done) — 전 항목 `⬜ → ✅` 전환 여부 확인
+3. `docs/sprint/sprint{n}/scope.md` — 수정 파일 목록 중 미완료 항목 없음 확인
+
+모든 항목 확인 후:
 
 > "sprint{n} 구현 완료했어. sprint-close 실행해줘."
 

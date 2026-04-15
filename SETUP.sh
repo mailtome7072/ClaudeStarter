@@ -97,4 +97,19 @@ else
 fi
 
 echo ""
+echo "=== Git Hooks 설치 (Harness Hook Compliance) ==="
+
+if [ -d ".git" ]; then
+  if [ -f "scripts/hooks/pre-commit" ]; then
+    git config --local core.hooksPath scripts/hooks
+    echo "✅ git hooks 경로 설정 완료 (scripts/hooks)"
+    echo "   → 커밋 전 Python syntax + 프론트엔드 lint 자동 검사"
+  else
+    echo "⚠️  scripts/hooks/pre-commit 없음 — git hook 설치 생략"
+  fi
+else
+  echo "⚠️  .git 디렉토리 없음 — git hook 설치 생략 (git init 후 SETUP.sh 재실행)"
+fi
+
+echo ""
 echo "=== SETUP 완료 ==="

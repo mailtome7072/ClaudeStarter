@@ -52,14 +52,19 @@ project-root/                    # 프로젝트 루트(Root) 폴더
 │   │   ├── restart.md           # /restart 슬래시 커맨드
 │   │   └── setup-project.md     # /setup-project 슬래시 커맨드
 │   ├── hooks/                   # Claude Code 훅 (도구 실행 전후 자동 실행)
-│   │   ├── pretooluse-bash-guard.sh  # Bash 실행 전 위험 명령 6가지 차단
-│   │   ├── stop-doc-checker.sh       # 에이전트 종료 후 문서 누락 자동 감지
-│   │   └── lib/doc-rules.json        # 에이전트별 필수 문서 검증 규칙
+│   │   ├── pretooluse-bash-guard.sh       # Bash 실행 전 위험 명령 6가지 차단
+│   │   ├── posttooluse-code-validator.sh  # Edit/Write 후 .env 차단, syntax 검증, 시크릿 감지
+│   │   ├── posttooluse-scope-tracker.sh   # 파일 수정 횟수 자동 집계 (3회 시 loop 경고)
+│   │   ├── stop-doc-checker.sh            # 에이전트 종료 후 문서 누락 감지 + session-summary 생성
+│   │   └── lib/
+│   │       ├── doc-rules.json   # 에이전트별 필수 문서 검증 규칙
+│   │       └── log-helper.sh    # 훅 이벤트 로그 기록 공통 함수
 │   ├── rules/                   # 조건부 자동 로드 규칙
-│   │   ├── sprint-workflow.md   # 모든 대화에 자동 적용
-│   │   ├── backend.md           # app/backend/**/*.py 접근 시
-│   │   ├── frontend.md          # app/frontend/**/*.ts,tsx 접근 시
-│   │   └── notion.md            # "Notion/노션" 언급 시
+│   │   ├── sprint-workflow.md      # 모든 대화에 자동 적용 — 에이전트 순서, 브랜치 규칙
+│   │   ├── harness-engineering.md  # 모든 대화에 자동 적용 — 5대 하네스 원칙
+│   │   ├── backend.md              # app/backend/**/*.py 접근 시
+│   │   ├── frontend.md             # app/frontend/**/*.ts,tsx 접근 시
+│   │   └── notion.md               # "Notion/노션" 언급 또는 Notion MCP 사용 시
 │   ├── skills/                  # Claude 스킬 정의
 │   │   ├── karpathy-guidelines.md  # 개발 원칙 지침
 │   │   ├── writing-plans.md        # 계획 작성 지침
@@ -68,8 +73,12 @@ project-root/                    # 프로젝트 루트(Root) 폴더
 │   │   ├── retrospective.md        # 스프린트 회고 작성 지침
 │   │   ├── simplify.md             # 모든 Task 완료 후 코드 단순화 1회 실행 (sprint-dev 자동 호출)
 │   │   ├── systematic-debugging.md # 버그·오류 Task 자동 배정 — 5단계 근본 원인 분석
-│   │   └── brainstorming.md        # 설계 대안 비교 Task 자동 배정 — Weighted Matrix → SWOT → ADR
-│   └── settings.json            # Claude 권한·훅 설정
+│   │   ├── brainstorming.md        # 설계 대안 비교 Task 자동 배정 — Weighted Matrix → SWOT → ADR
+│   │   ├── loop-detection.md       # 루프 상태 감지·분석·보고 (3회 실패/수정 시 자동 배정)
+│   │   └── harness-ci-gate.md      # 배포 전 Policy Gate 체크리스트 (deploy-prod, sprint-review 사용)
+│   ├── settings.json            # Claude 권한·훅 설정
+│   ├── logs/                    # 훅 이벤트 로그 (gitignored) — YYYY-MM-DD.log + session-summary.md
+│   └── tmp/                     # 허가 플래그 임시 파일 (gitignored) — Forbidden Area 1회 허용
 │
 ├── .github/
 │   ├── workflows/
@@ -93,6 +102,7 @@ project-root/                    # 프로젝트 루트(Root) 폴더
 │   ├── EXAMPLE-prd.md           # PRD 작성 완성형 예시 (TaskFlow 가상 프로젝트)
 │   ├── code-review-checklist.md # 코드 리뷰 체크리스트
 │   ├── arch/                    # ADR(Architecture Decision Records) — brainstorming 스킬이 생성
+│   ├── harness-engineering/     # 하네스 엔지니어링 정책 문서 (deployment-policy, continuous-verification)
 │   ├── risk-register/           # 프로젝트별 리스크 이력 저장 (폴더)
 │   ├── phase/                   # Phase 설계 기록 — phase-planner agent가 생성 (폴더)
 │   ├── sprint/                  # 스프린트 계획 기록 (폴더)
@@ -106,9 +116,11 @@ project-root/                    # 프로젝트 루트(Root) 폴더
 │   └── backend/                 # 백엔드 소스 코드 (FastAPI 등, 프로젝트 시작 시 생성)
 │       ├── ...                  # 메인 애플리케이션 코드
 │       ├── tests/               # pytest 테스트 (ci.yml: app/backend/tests/)
-│       └── requirements.txt     # Python 의존성
+│       └── requirements.txt     # Python 의존성 (ruff 포함 — pip install -r로 설치)
 
-├── scripts/                     # 수동 유틸리티 스크립트 — 필요 시 생성 (docs/ci-policy.md 참조)
+├── scripts/                     # 유틸리티 스크립트
+│   └── hooks/
+│       └── pre-commit           # Git pre-commit 훅 — Python syntax + ruff + 프론트엔드 lint
 ```
 
 ---
@@ -187,6 +199,28 @@ sprint-close의 경량 버전. ROADMAP 업데이트 없이 `main` 브랜치로 P
 
 ---
 
+## 하네스 엔지니어링 원칙
+
+AI 에이전트의 자율성을 보장하면서도 가드레일을 강제하는 **하네스(Harness) 엔지니어링** 원칙이 전체 워크플로우에 적용됩니다.
+
+| 원칙 | 핵심 행동 | 구현 위치 |
+|------|---------|---------|
+| **1. Planning First** | 코드 수정 전 `scope.md` 작성 의무 | `sprint-dev` 0단계, `posttooluse-code-validator.sh` 경고 |
+| **2. Strict Guardrails** | scope 외 파일·패키지·구조 변경 차단 | `posttooluse-code-validator.sh`, Forbidden Areas |
+| **3. Verification Loops** | 3-retry, 동일 수정 반복 금지 | `posttooluse-scope-tracker.sh`, `loop-detection` 스킬 |
+| **4. Policy Enforcement** | 배포 전 Policy Gate 통과 필수 | `harness-ci-gate` 스킬, `deploy-prod` 에이전트 |
+| **5. Continuous Verification** | 배포 후 자동 검증 및 롤백 트리거 | `deploy-prod` 에이전트, `continuous-verification.md` |
+
+**Forbidden Areas** (명시적 사용자 허가 없이 수정 차단):
+- `.github/workflows/` — CI/CD 파이프라인
+- `SETUP.sh` — 프로젝트 초기화 스크립트
+- `docker/`, `docker-compose*.yml` — 컨테이너 인프라 설정
+- `docs/harness-engineering/` — Harness 정책 문서
+
+상세: `docs/harness-engineering/README.md` / `.claude/rules/harness-engineering.md`
+
+---
+
 ## 슬래시 커맨드
 
 | 커맨드 | 구분 | 설명 |
@@ -196,11 +230,37 @@ sprint-close의 경량 버전. ROADMAP 업데이트 없이 `main` 브랜치로 P
 | `/sprint-dev [n]` | 프로젝트 커스텀 | sprint{n}.md 기반 구현 오케스트레이터 — 브랜치 생성, 현황 파악, 가이드라인 주입 (**사용자가 직접 입력하는 커맨드** — 에이전트가 대신 호출하지 않음) |
 | `/restart` | 프로젝트 커스텀 | Docker Compose 서비스 재시작 |
 
+---
+
+## 훅 시스템 및 로깅
+
+### 자동 실행 훅 (`.claude/hooks/`)
+
+| Hook 이벤트 | 파일 | 동작 |
+|------------|------|------|
+| **PreToolUse** (Bash) | `pretooluse-bash-guard.sh` | 디렉토리 체이닝, force push, main/develop 직접 push, hard reset, 브랜치 명명 위반 차단 |
+| **PostToolUse** (Edit/Write) | `posttooluse-code-validator.sh` | `.env` 수정 차단, Forbidden Area 허가 검증, Python syntax, 시크릿 패턴 감지, Planning First 경고 |
+| **PostToolUse** (Edit/Write) | `posttooluse-scope-tracker.sh` | `scope.md` 수정 횟수 자동 증가 — 3회 시 loop-detection 경고, 30% 초과 시 Re-planning 트리거 |
+| **Stop** | `stop-doc-checker.sh` | 에이전트 유형별 필수 문서 누락 감지, `.claude/logs/session-summary.md` 갱신 |
+
+### 로깅 시스템 (`.claude/logs/`, gitignored)
+
+훅 이벤트는 자동으로 날짜별 로그 파일에 기록됩니다:
+
+```
+.claude/logs/
+├── YYYY-MM-DD.log       # 훅 이벤트 로그 (타임스탬프|훅명|BLOCK/WARN|규칙ID|대상)
+└── session-summary.md   # 세션 종료 시 자동 생성 — 다음 세션 재진입 시 참조
+```
+
+**다음 세션 재활용 흐름**: 세션 종료 → `session-summary.md` 자동 갱신 → 다음 `/sprint-dev` 0단계에서 읽어 반복 위반 패턴 파악 → `sprint-planner` 메모리에 기록 → 다음 스프린트 계획에 반영
+
 ## 문서 참고 체계
 ```
 ARCHITECTURE.md (프로젝트 변수 레지스트리 — /setup-project 스킬의 입력)
 CLAUDE.md (AI 협업 지시 — 빌드/테스트 명령어, 워크플로우 지침 포함)
   └→ strategy/*.md (전략 지침 계층)
+  └→ .claude/rules/harness-engineering.md (하네스 원칙 — 전체 대화 자동 적용)
   └→ .claude/agents/*.md (Claude 에이전트 실행 로직)
   └→ .claude/skills/*.md (Claude 스킬 — 에이전트가 참조)
   └→ docs/dev-process.md (프로세스 상세)
@@ -220,6 +280,8 @@ CLAUDE.md (AI 협업 지시 — 빌드/테스트 명령어, 워크플로우 지�
 | `risk-management.md` | sprint-planner (risk-register), deploy-prod (버전 전략) |
 | `documentation.md` | sprint-close (문서화 기준) |
 | `retrospectives.md` | sprint-review (retrospective 스킬 기준) |
+
+> **Notion MCP**: `.mcp.json`에 Notion HTTP MCP가 설정되어 있습니다. 사용 규칙: `.claude/rules/notion.md`
 
 ---
 
@@ -337,10 +399,11 @@ pnpm install && pnpm build
 pnpm test                                          # 전체 테스트
 pnpm lint
 
-# 백엔드 (Python/pytest)
+# 백엔드 (Python/pytest + ruff)
 source .venv/bin/activate
 pytest app/backend/tests/                          # 전체 테스트
 pytest app/backend/tests/test_foo.py::test_bar     # 단일 테스트 함수
+ruff check app/backend/                            # Python 린트 (pre-commit 자동 실행)
 
 # 로컬 스테이징 (Docker)
 docker compose up --build
@@ -390,3 +453,4 @@ docker compose up --build
 - `PRD.md` — 제품 요구사항 정의
 - `DEPLOY.md` — 배포 후 수동 작업 목록
 - `CHANGELOG.md` — 버전별 변경 이력
+- `docs/harness-engineering/README.md` — 하네스 엔지니어링 정책 개요 (5대 원칙 상세)

@@ -109,6 +109,8 @@ logs/
 tmp/
 temp/
 .temp/
+.claude/tmp/
+.claude/logs/
 
 # ===================================
 # 도구 캐시

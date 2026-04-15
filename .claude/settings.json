@@ -1,7 +1,14 @@
 {
   "permissions": {
     "allow": [
-      "Bash(git *)"
+      "Bash(git *)",
+      "Bash(pytest *)",
+      "Bash(pnpm *)",
+      "Bash(docker *)",
+      "Bash(curl *)",
+      "Bash(source .venv/bin/activate)",
+      "Bash(gh *)",
+      "Bash(ssh -i *)"
     ]
   },
   "hooks": {
@@ -12,6 +19,21 @@
           {
             "type": "command",
             "command": "bash .claude/hooks/pretooluse-bash-guard.sh"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/posttooluse-code-validator.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/posttooluse-scope-tracker.sh"
           }
         ]
       }

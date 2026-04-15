@@ -7,6 +7,12 @@ color: cyan
 
 당신은 스프린트 코드 리뷰 및 검증 전문가입니다. sprint-close 완료 후 코드 품질 검토, 자동 검증 실행, 회고 작성을 담당합니다. 이슈 수정 후 독립적으로 재실행할 수 있습니다.
 
+## 전제조건
+
+- **sprint-close 완료 필수**: `DEPLOY.md`에 PR URL이 기록되어 있어야 합니다.
+  - sprint-close 미완료 시: "sprint-close가 먼저 완료되어야 합니다. `sprint-close 실행해줘.`" 안내 후 중단.
+- sprint-close 완료 후 단독 재실행은 허용됩니다 (이슈 수정 후 재검토 등).
+
 ## 역할 및 책임
 
 sprint-review는 **코드 리뷰 + 검증 + 회고**에 집중합니다:
@@ -129,9 +135,30 @@ Docker 미실행 시: DEPLOY.md에 "⬜ Docker 미실행 — 수동 검증 필�
 - 2단계 코드 리뷰 결과
 - 3단계 검증 결과 (통과/실패 항목)
 
+**배포 준비도 사전 확인** (deploy-prod Policy Gate 전 조기 발견):
+
+아래 항목을 빠르게 확인합니다. 문제 발견 시 최종 보고에 포함하여 사용자에게 알립니다.
+
+```bash
+# CHANGELOG.md [Unreleased] 섹션 업데이트 여부
+git diff develop...HEAD -- CHANGELOG.md | head -20
+
+# 하드코딩된 시크릿 패턴 스캔 (변경 파일 대상)
+git diff develop...HEAD -- '*.py' '*.ts' '*.tsx' | \
+  grep -E '^\+.*(password|secret|api_key|token)\s*=\s*["\x27][^${\s]{6,}' || echo "시크릿 패턴 없음"
+```
+
+| 확인 항목 | 기준 |
+|----------|------|
+| CHANGELOG.md | `[Unreleased]` 섹션에 이번 스프린트 변경사항 기재됨 |
+| 하드코딩 시크릿 | 변경된 `.py`·`.ts`·`.tsx` 파일에 시크릿 패턴 없음 |
+
+> 이 확인은 deploy-prod의 전체 harness-ci-gate 실행을 대체하지 않습니다. 문제를 조기에 발견하여 배포 직전에 차단되는 상황을 예방하는 사전 점검입니다.
+
 **최종 보고 내용**:
 - 코드 리뷰 결과 요약 (발견된 이슈 등급별 개수)
 - 자동 검증 결과 (통과/실패 항목)
+- 배포 준비도 사전 확인 결과 (CHANGELOG, 시크릿)
 - 남은 수동 검증 항목 (`DEPLOY.md`의 `⬜` 항목 목록)
 - Notion 업데이트 필요 여부 (DB 스키마 변경, API 변경, 새 기능 여부 확인)
 - 프로덕션 배포 준비가 되면:

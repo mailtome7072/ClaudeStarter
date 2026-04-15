@@ -21,6 +21,27 @@ color: red
 
 ## 작업 절차
 
+### 0단계: 범위 자동 검증 — Harness Strict Guardrails
+
+> Harness Engineering 원칙 2: 정의된 범위를 벗어난 작업은 자동 차단
+
+아래 두 명령을 실행하여 hotfix 범위를 검증합니다:
+
+```bash
+git diff main...HEAD --name-only | grep -v '^$' | wc -l   # 변경 파일 수
+git diff main...HEAD | grep -E '^[+-][^+-]' | wc -l        # 변경 코드 줄 수
+```
+
+**결과 판단**:
+- 파일 수 ≤ 3 **AND** 코드 줄 수 ≤ 50 → 1단계로 진행
+- 파일 수 > 3 **OR** 코드 줄 수 > 50 → **즉시 중단**, 사용자에게 보고:
+  > "범위 초과: 파일 {N}개 / 코드 {N}줄 — Hotfix 기준(파일 3개, 50줄)을 초과합니다.
+  > Sprint 프로세스로 전환을 권장합니다. Sprint로 진행할까요, 아니면 범위를 축소하시겠습니까?"
+
+> **SSOT**: Hotfix 판단 기준 상세는 `docs/dev-process.md` 섹션 2 참조
+
+---
+
 ### 1단계: 현재 상태 파악
 
 - 현재 브랜치가 `hotfix/*` 형식인지 확인합니다.

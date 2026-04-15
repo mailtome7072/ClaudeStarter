@@ -18,6 +18,22 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Sonnet 계열: `sprint-close`, `sprint-review`, `deploy-prod`, `hotfix-close` — 실행/검증
 - 슬래시 커맨드: `/sprint-dev [n]` — 구현 단계 오케스트레이터
 
+**에이전트 공유 메모리**: `.claude/agents/agent-memory/` — 세션 간 유지되는 에이전트별 메모리 파일 (버전 관리됨). 현재 메모리 보유 에이전트: `sprint-planner`, `prd-to-roadmap`, `phase-planner`, `deploy-prod`
+
+## 하네스 엔지니어링 원칙
+
+이 템플릿은 AI 에이전트의 자율성을 보장하면서도 가드레일을 강제하는 **하네스(Harness) 엔지니어링** 원칙을 따른다.
+
+| 원칙 | 설명 | 구현 위치 |
+|------|------|----------|
+| **1. Planning First** | 코드 수정 전 scope.md 작성 | `sprint-dev` 0단계, `docs/sprint/sprint{n}/scope.md` |
+| **2. Strict Guardrails** | 범위 외 파일/라이브러리/구조 변경 금지 | `posttooluse-code-validator.sh`, `harness-engineering.md` |
+| **3. Verification Loops** | 3-retry 원칙, 동일 수정 반복 금지 | `sprint-dev` 검증 실패 대응, `harness-engineering.md` |
+| **4. Policy Enforcement** | 배포 전 OPA 유사 게이트 통과 필수 | `harness-ci-gate` 스킬, `deployment-policy.md` |
+| **5. Continuous Verification** | 배포 후 자동 검증 및 롤백 트리거 | `deploy-prod` 에이전트, `continuous-verification.md` |
+
+상세: `docs/harness-engineering/README.md`
+
 ## 신규 클론 후 시작 순서
 
 1. `ARCHITECTURE.md`의 5개 변수(`project_name`, `github_org` 등) 채우기
@@ -75,7 +91,7 @@ docker compose -f docker-compose.prod.yml up   # 프로덕션 설정으로 실�
 
 | 커맨드 | 구분 | 설명 | 정의 파일 |
 |--------|------|------|----------|
-| `/setup-project` | 프로젝트 커스텀 | `ARCHITECTURE.md` 변수 → `README.md`, `CLAUDE.md`, `PRD.md`, `docs/ci-policy.md` 플레이스홀더 일괄 치환 (`deploy.yml`은 `github.repository` 내장 변수 사용으로 치환 불필요) | `.claude/commands/setup-project.md` |
+| `/setup-project` | 프로젝트 커스텀 | `ARCHITECTURE.md` 변수 → `README.md`, `CLAUDE.md`, `PRD.md`, `docs/ci-policy.md`, `docker-compose.prod.yml` 플레이스홀더 일괄 치환 (`deploy.yml`은 `github.repository` 내장 변수 사용으로 치환 불필요) | `.claude/commands/setup-project.md` |
 | `/sprint-dev [n]` | 프로젝트 커스텀 | `sprint{n}.md` 기반 구현 오케스트레이터 — 브랜치 생성, 현황 파악, 가이드라인 주입 (**사용자가 직접 입력하는 커맨드** — 에이전트가 대신 호출하지 않음) | `.claude/commands/sprint-dev.md` |
 | `/restart` | 프로젝트 커스텀 | Docker Compose 서비스 재시작 | `.claude/commands/restart.md` |
 
@@ -86,6 +102,8 @@ Claude Code가 도구 실행 전후로 자동으로 실행하는 검증 스크�
 | Hook | 파일 | 트리거 | 역할 |
 |------|------|--------|------|
 | PreToolUse | `pretooluse-bash-guard.sh` | Bash 도구 실행 전 | 위험 명령 6가지 패턴 차단 |
+| PostToolUse | `posttooluse-code-validator.sh` | Edit/Write 도구 실행 후 | Python syntax 검증, `.env` 수정 차단, 시크릿 패턴 감지 |
+| PostToolUse | `posttooluse-scope-tracker.sh` | Edit/Write 도구 실행 후 | scope.md 파일 수정 횟수 자동 증가, 3회 도달 시 loop-detection 경고 |
 | Stop | `stop-doc-checker.sh` | 에이전트 응답 종료 후 | 에이전트별 문서 누락 자동 감지 |
 
 **bash-guard 차단 규칙**: 디렉토리 체이닝(`cd /path &&`) / main·develop 직접 push / force push / `git reset --hard` / 허용되지 않는 브랜치 명명
@@ -101,6 +119,7 @@ rules/ 파일은 조건에 따라 자동 로드됩니다. skills/는 에이전�
 | 파일 | 로드 조건 | 역할 |
 |------|----------|------|
 | `sprint-workflow.md` | 전체 대화 | 에이전트 사용 순서, 브랜치 규칙, Hotfix vs Sprint 판단 |
+| `harness-engineering.md` | 전체 대화 | 5대 하네스 원칙, scope 선언 의무, step-back 프로토콜, 3-retry |
 | `backend.md` | `app/backend/**/*.py` 등 접근 시 | 백엔드 개발 제약 (테스트, 마이그레이션, 보안) |
 | `frontend.md` | `app/frontend/**/*.ts,tsx` 등 접근 시 | 프론트엔드 개발 제약 (TypeScript, API 추상화, XSS) |
 | `notion.md` | "Notion/노션" 언급 또는 Notion MCP 사용 시 | Notion MCP 사용 규칙, 페이지 ID 매핑 |
@@ -117,6 +136,10 @@ rules/ 파일은 조건에 따라 자동 로드됩니다. skills/는 에이전�
 | `code-review` | PR 코드 리뷰 체크리스트 |
 | `test-checklist` | 테스트 보고서 작성 형식 |
 | `retrospective` | 스프린트 회고 진행 형식 |
+| `systematic-debugging` | 버그 근본 원인 파악 5단계 절차 (`/sprint-dev` 내 버그 Task에 자동 배정) |
+| `brainstorming` | 설계 대안 비교(Weighted Matrix + SWOT) 및 ADR 작성 (`/sprint-dev` 내 설계 결정 Task에 자동 배정) — ADR 저장: `docs/arch/adr-{NNN}-{주제}.md` |
+| `loop-detection` | 루프 상태 감지·분석·보고 프로토콜 (`/sprint-dev` 루프 감지 시 자동 배정 — 동일 테스트 3회 연속 실패 또는 동일 파일 3회 이상 수정 시) |
+| `harness-ci-gate` | 배포 전 Policy Gate 체크리스트 — BLOCK/CONFIRM 조건 검증 (`deploy-prod`, `sprint-review` 에이전트 사용) |
 
 ## 환경 변수 관리 지시
 - `.env` 파일은 프로젝트 루트에 위치하며, 각자 환경에서 작성한다.
@@ -182,7 +205,7 @@ rules/ 파일은 조건에 따라 자동 로드됩니다. skills/는 에이전�
 
 - Bash 명령 실행 시 `cd /path &&` 접두사를 사용하지 마세요. 작업 디렉토리가 이미 프로젝트 루트로 설정되어 있습니다.
 - 특히 git 명령은 반드시 `git ...` 형태로 직접 실행하세요. (`cd ... && git ...` 금지)
-- `.claude/settings.json`의 기본 허용 명령은 `git *`만 포함됩니다. 개발 중 pnpm, pytest, docker 등 명령이 필요하면 `/update-config` 스킬로 권한을 추가하거나 `.claude/settings.json`의 `permissions.allow`를 직접 수정하세요.
+- `.claude/settings.json`의 기본 허용 명령: `git *`, `pytest *`, `pnpm *`, `docker *`, `curl *`, `gh *`, `ssh -i *`. 기본 목록에 없는 명령이 필요하면 `.claude/settings.json`의 `permissions.allow`에 직접 추가하세요.
 
 ## 개발시 유의해야할 사항
 

@@ -116,7 +116,7 @@ GitHub Actions 배포 파이프라인이 동작하려면 리포지토리에 아�
 | `SECRET_KEY` | 앱 시크릿 키 | 직접 설정 (32바이트 이상 랜덤 문자열 권장) |
 | `NEXT_PUBLIC_API_URL` | 프론트엔드에서 사용하는 백엔드 API URL | 예: `https://api.yourdomain.com` |
 
-> **참고**: Secrets 목록 전체는 `docs/ci-policy.md` → "GitHub Secrets 목록" 섹션을 참조합니다.
+> **참고**: Secrets 목록 전체는 `docs/ci-policy.md` → "GitHub Secrets 목록 (프로덕션 필수)" 섹션을 참조합니다.
 
 ---
 
